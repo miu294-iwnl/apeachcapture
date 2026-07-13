@@ -38,7 +38,13 @@
         <div class="camera-container">
           <!-- Video feed wrapper -->
           <div class="video-wrapper" id="video-wrapper">
-            <video id="webcam" autoplay playsinline class="normal-filter"></video>
+            <video id="webcam" autoplay playsinline class="normal-filter hidden"></video>
+            <!-- Camera permission prompt -->
+            <div id="camera-prompt" class="camera-prompt">
+              <h3>Quyền Truy Cập Camera</h3>
+              <p>Nhấp vào nút bên dưới để cấp quyền và mở camera chụp hình cùng Apeach nhé!</p>
+              <button id="btn-grant-camera" class="btn-grant-camera">Bật Camera 📸</button>
+            </div>
             <!-- 3-2-1 Countdown Overlay -->
             <div id="countdown-overlay" class="countdown-overlay hidden">
               <span id="countdown-text">3</span>
@@ -47,7 +53,6 @@
             <div id="flash-mask" class="flash-mask"></div>
             <!-- Error message if webcam is denied -->
             <div id="camera-error" class="camera-error hidden">
-              <div class="error-icon">🍑💦</div>
               <h3>Không tìm thấy Camera!</h3>
               <p>Apeach không kết nối được camera của bạn. Hãy đảm bảo bạn đã cắm webcam và cho phép truy cập camera trên trình duyệt nhé!</p>
             </div>
@@ -99,9 +104,9 @@
 
             <!-- Custom footer for strip -->
             <div class="strip-footer">
-              <div class="strip-logo-text">Peach Love</div>
-              <div class="strip-logo">
-                <img class="apeach-strip-logo-img" src="apeach_footer.png" alt="Apeach Footer" width="35" height="35" style="object-fit: contain;">
+              <div class="strip-footer-left">
+                <div class="strip-logo-text">Peach Love</div>
+                <div class="strip-dedication">Dành cho Maeve</div>
               </div>
             </div>
           </div>
