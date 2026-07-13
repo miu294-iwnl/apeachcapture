@@ -20,6 +20,24 @@ document.addEventListener('DOMContentLoaded', () => {
   let isCapturing = false;
   let compiledDataUrl = null;
 
+  // Get current date string in format DD/MM/YYYY
+  function getCurrentDateString() {
+    const today = new Date();
+    return `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+  }
+
+  // Update preview date element dynamically
+  function updatePreviewDate() {
+    const stripDateEl = document.getElementById('strip-date');
+    if (stripDateEl) {
+      stripDateEl.textContent = getCurrentDateString();
+    }
+  }
+
+  // Initial update on page load and start real-time timer (checks every minute)
+  updatePreviewDate();
+  setInterval(updatePreviewDate, 60000);
+
   // Disable capture button by default until camera permission is granted
   btnCapture.disabled = true;
 
@@ -172,33 +190,33 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDownload.disabled = true;
     
     frameSlots.forEach((slot, index) => {
-      slot.innerHTML = `<div class="frame-placeholder">🍑 Khung ${index + 1}</div>`;
+      slot.innerHTML = `<div class="frame-placeholder">🌸 Khung ${index + 1}</div>`;
     });
   }
 
   // Draw custom vertical 4-cut collage canvas
   function compilePhotoStrip() {
     const stripCanvas = document.createElement('canvas');
-    // Set 600px width x 1800px height (aspect ratio 1:3)
+    // Set 600px width x 1860px height to accommodate the date in the footer
     stripCanvas.width = 600;
-    stripCanvas.height = 1800;
+    stripCanvas.height = 1860;
     const ctx = stripCanvas.getContext('2d');
 
-    // 1. Draw solid cute pastel pink background
-    ctx.fillStyle = '#ffc8c8'; // Primary Pink
+    // 1. Draw solid white background matching web
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
-    // 2. Draw border decorations around strip edge
-    ctx.lineWidth = 12;
-    ctx.strokeStyle = '#ff9494'; // Deep Pink
-    ctx.strokeRect(6, 6, stripCanvas.width - 12, stripCanvas.height - 12);
+    // 2. Draw subtle border around the canvas
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.strokeRect(2, 2, stripCanvas.width - 4, stripCanvas.height - 4);
 
-    // 3. Layout constants for frames
-    const frameW = 500;
-    const frameH = 375; // 4:3 Aspect Ratio
-    const startX = 50; // Centered: (600 - 500) / 2
-    const startY = 80;
-    const gap = 32;
+    // 3. Layout constants for frames (without header, starts closer to top)
+    const frameW = 524;
+    const frameH = 393; // 4:3 Aspect Ratio matching web
+    const startX = 38; // Left/right margin
+    const startY = 44; // Starts at 44px top padding
+    const gap = 27;
 
     // Load all 4 photos as promises
     const loadPromises = photos.map((photoUrl, i) => {
@@ -217,15 +235,40 @@ document.addEventListener('DOMContentLoaded', () => {
         photoResults.forEach(item => {
           const yPos = startY + item.index * (frameH + gap);
 
-          // Draw photo white backing board
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(startX - 8, yPos - 8, frameW + 16, frameH + 16);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = 'rgba(0,0,0,0.06)';
-          ctx.strokeRect(startX - 8, yPos - 8, frameW + 16, frameH + 16);
+          // Fill background of slot
+          ctx.fillStyle = '#f7f7f7';
+          ctx.beginPath();
+          if ('roundRect' in ctx) {
+            ctx.roundRect(startX, yPos, frameW, frameH, 11);
+          } else {
+            ctx.rect(startX, yPos, frameW, frameH);
+          }
+          ctx.fill();
+
+          ctx.save();
+          // Create rounded rectangle path for clipping
+          ctx.beginPath();
+          if ('roundRect' in ctx) {
+            ctx.roundRect(startX, yPos, frameW, frameH, 11);
+          } else {
+            ctx.rect(startX, yPos, frameW, frameH);
+          }
+          ctx.clip();
 
           // Draw the photo
           ctx.drawImage(item.img, startX, yPos, frameW, frameH);
+          ctx.restore();
+
+          // Draw frame slot border
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+          ctx.beginPath();
+          if ('roundRect' in ctx) {
+            ctx.roundRect(startX, yPos, frameW, frameH, 11);
+          } else {
+            ctx.rect(startX, yPos, frameW, frameH);
+          }
+          ctx.stroke();
         });
 
         // Draw footer
@@ -238,35 +281,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Draw Apeach logo and texts onto the photo strip footer
   function drawStripFooter(ctx, canvas) {
-    const footerY = 1715;
+    const footerY = 1730; // Placed 33px below the last photo (1697 + 33)
 
-    // Draw divider dotted/dashed effect
-    ctx.strokeStyle = 'rgba(255, 148, 148, 0.4)';
-    ctx.lineWidth = 4;
+    // Draw dashed divider line
+    ctx.strokeStyle = 'rgba(245, 141, 158, 0.2)';
+    ctx.lineWidth = 3;
     ctx.setLineDash([8, 8]);
     ctx.beginPath();
-    ctx.moveTo(50, 1690);
-    ctx.lineTo(550, 1690);
+    ctx.moveTo(38, footerY);
+    ctx.lineTo(562, footerY);
     ctx.stroke();
     ctx.setLineDash([]); // Reset line dash
 
-    // Draw "APEACH BOOTH" Brand text
-    ctx.fillStyle = '#3a2525';
-    ctx.font = 'bold 28px "Fredoka", sans-serif';
+    // Draw "Apeach Photobooth" logo text
+    ctx.fillStyle = '#ffc8c8'; // --primary-pink
+    ctx.font = '700 32px "Fredoka", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('APEACH BOOTH 🍑', 55, footerY - 10);
+    ctx.fillText('Apeach Photobooth', 38, footerY + 16 + 28);
 
     // Draw Date stamp
-    const today = new Date();
-    const dateStr = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
     ctx.fillStyle = 'rgba(58, 37, 37, 0.6)';
-    ctx.font = '600 18px "Fredoka", sans-serif';
-    ctx.fillText(dateStr, 55, footerY + 20);
+    ctx.font = '600 20px "Fredoka", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(getCurrentDateString(), 38, footerY + 16 + 28 + 8 + 20);
 
-    // Draw Dedication "Dành cho Maeve" (smaller, slightly faded into the background)
-    ctx.fillStyle = 'rgba(58, 37, 37, 0.35)';
-    ctx.font = '600 16px "Fredoka", sans-serif';
-    ctx.fillText('Dành cho Maeve', 55, footerY + 45);
+    // Draw "Dành cho Maeve" dedication text
+    ctx.fillStyle = 'rgba(58, 37, 37, 0.45)'; // --text-dark with opacity
+    ctx.font = '600 18px "Fredoka", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Dành cho Maeve', 38, footerY + 16 + 28 + 8 + 20 + 8 + 18);
 
     // Save finalized URL to trigger downloading
     compiledDataUrl = canvas.toDataURL('image/png');
