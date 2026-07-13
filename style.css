@@ -1,0 +1,514 @@
+/* --- APEACH PHOTOBOOTH STYLE SYSTEM --- */
+
+:root {
+  /* Cute Pastel Pink & Peach Color Scheme */
+  --bg-gradient-start: hsl(350, 100%, 94%); /* Very soft pink */
+  --bg-gradient-end: hsl(20, 100%, 92%);    /* Warm pastel peach */
+  
+  --panel-bg: rgba(255, 255, 255, 0.75);
+  --panel-border: hsl(343, 85%, 65%);
+  --panel-shadow: rgba(220, 130, 140, 0.25);
+  
+  --primary-pink: hsl(350, 100%, 88%);   /* Apeach skin color */
+  --dark-pink: hsl(343, 85%, 63%);      /* Main contrast color */
+  --peach-orange: hsl(20, 100%, 75%);    /* Cam đào accent */
+  --text-dark: hsl(343, 40%, 25%);       /* Nâu hồng ấm */
+  --text-light: hsl(350, 100%, 97%);
+  
+
+  
+  --font-family: 'Fredoka', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --border-radius-large: 24px;
+  --border-radius-medium: 16px;
+}
+
+/* --- RESET & GENERAL STYLES --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  position: relative;
+  padding: 20px;
+}
+
+/* Floating decorations in background */
+.decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.petal {
+  position: absolute;
+  font-size: 24px;
+  opacity: 0.7;
+  animation: floatSlow 12s infinite ease-in-out;
+}
+
+.petal-1 { top: 15%; left: 8%; animation-delay: 0s; }
+.petal-2 { top: 75%; left: 12%; animation-delay: 3s; font-size: 20px; }
+.petal-3 { top: 20%; right: 10%; animation-delay: 1.5s; }
+.petal-4 { top: 80%; right: 15%; animation-delay: 4.5s; font-size: 18px; }
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(15deg); }
+}
+
+/* --- APP CONTAINER --- */
+.app-container {
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --- HEADER --- */
+.app-header {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.logo-wrapper {
+  display: inline-block;
+  animation: heartPulse 3s infinite ease-in-out;
+}
+
+.apeach-svg {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.app-header h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--dark-pink);
+  text-shadow: 0 4px 0px rgba(255, 255, 255, 0.8), 0 6px 12px var(--panel-shadow);
+  letter-spacing: -0.5px;
+  margin-top: 5px;
+}
+
+.app-header .subtitle {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* --- MAIN WORKSPACE --- */
+.main-workspace {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 24px;
+  width: 100%;
+}
+
+/* Glassmorphism Panel styles */
+.panel {
+  background: var(--panel-bg);
+  border: 4px solid var(--panel-border);
+  border-radius: var(--border-radius-large);
+  box-shadow: 0 12px 32px var(--panel-shadow), inset 0 2px 0 rgba(255,255,255,0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.3s ease;
+}
+
+.panel:hover {
+  transform: translateY(-2px);
+}
+
+.panel-header h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--dark-pink);
+  border-bottom: 2px dashed rgba(245, 141, 158, 0.3);
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+/* --- CAMERA PANEL (LEFT) --- */
+.camera-panel {
+  flex-grow: 1;
+}
+
+.camera-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Polaroid-like camera bezel wrapper */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  max-width: 580px;
+  background: #3a2525;
+  border-radius: var(--border-radius-medium);
+  border: 12px solid #fff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+#webcam {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror camera feed for natural usage */
+  transition: filter 0.3s ease;
+}
+
+
+
+/* 3-2-1 Countdown Overlay */
+.countdown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 200, 200, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+#countdown-text {
+  font-size: 7rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 20px var(--dark-pink), 0 4px 10px rgba(0, 0, 0, 0.3);
+  animation: countdownTick 1s infinite cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes countdownTick {
+  0% { transform: scale(0.3); opacity: 0; }
+  25% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Flash Mask animation */
+.flash-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.flash-active {
+  animation: cameraFlash 0.3s ease-out forwards;
+}
+
+@keyframes cameraFlash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Camera Error display */
+.camera-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--panel-bg);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 15px;
+  color: var(--text-dark);
+}
+
+.error-icon {
+  font-size: 3rem;
+  animation: floatSlow 3s infinite ease-in-out;
+}
+
+.camera-error h3 {
+  font-size: 1.3rem;
+  color: var(--dark-pink);
+}
+
+.camera-error p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+/* --- CONTROLS SYSTEM --- */
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+
+
+/* Capture Action Area */
+.capture-action-wrapper {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-capture {
+  background: linear-gradient(135deg, var(--peach-orange), var(--dark-pink));
+  border: none;
+  border-radius: 50px;
+  padding: 14px 28px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(245, 141, 158, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-capture:hover {
+  transform: scale(1.04) translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 141, 158, 0.5);
+}
+
+.btn-capture:active {
+  transform: scale(0.98) translateY(0);
+}
+
+.btn-capture:disabled {
+  background: #cccccc;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-peach-icon {
+  font-size: 1.3rem;
+  animation: heartPulse 2s infinite ease-in-out;
+}
+
+.capture-tip {
+  font-size: 0.8rem;
+  color: var(--text-dark);
+  opacity: 0.7;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* --- PHOTO STRIP PREVIEW (RIGHT) --- */
+.strip-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+}
+
+/* Thick photo paper vertical strip container */
+.photo-strip {
+  width: 220px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  padding: 16px 14px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Paper noise effect overlay */
+.photo-strip::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  pointer-events: none;
+  z-index: 5;
+}
+
+.strip-header {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--primary-pink);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.05);
+}
+
+.strip-frames {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Frame Slot styling */
+.frame-slot {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #f7f7f7;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.06);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.frame-placeholder {
+  font-size: 0.8rem;
+  color: var(--primary-pink);
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+/* Dynamic Image rendering inside slots */
+.captured-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Kept mirrored for natural display */
+  animation: slideInPhoto 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slideInPhoto {
+  0% { transform: scale(0.8) scaleX(-1); opacity: 0; }
+  100% { transform: scale(1) scaleX(-1); opacity: 1; }
+}
+
+.strip-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(245, 141, 158, 0.2);
+}
+
+.strip-logo-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-pink);
+}
+
+.strip-logo {
+  display: flex;
+  align-items: center;
+}
+
+/* Bottom Action Buttons */
+.actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-download {
+  background: linear-gradient(135deg, var(--dark-pink), var(--primary-pink));
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245, 141, 158, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-download:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(245, 141, 158, 0.45);
+}
+
+.btn-download:disabled {
+  background: #e0e0e0;
+  color: #a0a0a0;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-reset {
+  background: transparent;
+  border: 2px solid var(--primary-pink);
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reset:hover {
+  background: rgba(255, 200, 200, 0.15);
+  border-color: var(--dark-pink);
+}
+
+/* --- RESPONSIVE FALLBACKS --- */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  .app-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .main-workspace {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .panel {
+    padding: 16px;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
