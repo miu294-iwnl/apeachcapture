@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const countdownText = document.getElementById('countdown-text');
   const flashMask = document.getElementById('flash-mask');
   const cameraError = document.getElementById('camera-error');
+  const cameraPrompt = document.getElementById('camera-prompt');
+  const btnGrantCamera = document.getElementById('btn-grant-camera');
   const frameSlots = document.querySelectorAll('.frame-slot');
 
   // Application State
@@ -17,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let photos = [];
   let isCapturing = false;
   let compiledDataUrl = null;
+
+  // Disable capture button by default until camera permission is granted
+  btnCapture.disabled = true;
 
   // Initialize Webcam Connection
   async function initCamera() {
@@ -30,10 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
         audio: false
       });
       webcam.srcObject = stream;
+      cameraPrompt.classList.add('hidden');
       cameraError.classList.add('hidden');
       webcam.classList.remove('hidden');
+      btnCapture.disabled = false;
     } catch (err) {
       console.error('Error accessing webcam:', err);
+      cameraPrompt.classList.add('hidden');
       cameraError.classList.remove('hidden');
       webcam.classList.add('hidden');
       btnCapture.disabled = true;
@@ -89,8 +97,28 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.translate(capCanvas.width, 0);
     ctx.scale(-1, 1);
 
-    // 5. Draw video frame
-    ctx.drawImage(webcam, 0, 0, capCanvas.width, capCanvas.height);
+    // 5. Draw video frame with 4:3 center crop matching the object-fit: cover preview
+    const videoW = webcam.videoWidth || 640;
+    const videoH = webcam.videoHeight || 480;
+    const targetAspect = 4 / 3;
+    const streamAspect = videoW / videoH;
+    
+    let sX = 0;
+    let sY = 0;
+    let sWidth = videoW;
+    let sHeight = videoH;
+
+    if (streamAspect > targetAspect) {
+      // Stream is wider (e.g. 16:9), crop the sides
+      sWidth = videoH * targetAspect;
+      sX = (videoW - sWidth) / 2;
+    } else if (streamAspect < targetAspect) {
+      // Stream is taller, crop the top/bottom
+      sHeight = videoW / targetAspect;
+      sY = (videoH - sHeight) / 2;
+    }
+
+    ctx.drawImage(webcam, sX, sY, sWidth, sHeight, 0, 0, capCanvas.width, capCanvas.height);
 
     // 6. Reset transformations
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -172,29 +200,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const startY = 80;
     const gap = 32;
 
-    // 4. Draw each captured photo and add white frame borders
-    photos.forEach((photoUrl, i) => {
-      const img = new Image();
-      img.onload = () => {
-        const yPos = startY + i * (frameH + gap);
-
-        // Draw photo white backing board
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(startX - 8, yPos - 8, frameW + 16, frameH + 16);
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = 'rgba(0,0,0,0.06)';
-        ctx.strokeRect(startX - 8, yPos - 8, frameW + 16, frameH + 16);
-
-        // Draw the image
-        ctx.drawImage(img, startX, yPos, frameW, frameH);
-
-        // If this is the last image load, proceed to finalize footer and activate download
-        if (i === 3) {
-          drawStripFooter(ctx, stripCanvas);
-        }
-      };
-      img.src = photoUrl;
+    // Load all 4 photos as promises
+    const loadPromises = photos.map((photoUrl, i) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ img, index: i });
+        img.onerror = reject;
+        img.src = photoUrl;
+      });
     });
+
+    // Wait for all images to be loaded
+    Promise.all(loadPromises)
+      .then(photoResults => {
+        // Draw each photo
+        photoResults.forEach(item => {
+          const yPos = startY + item.index * (frameH + gap);
+
+          // Draw photo white backing board
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(startX - 8, yPos - 8, frameW + 16, frameH + 16);
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+          ctx.strokeRect(startX - 8, yPos - 8, frameW + 16, frameH + 16);
+
+          // Draw the photo
+          ctx.drawImage(item.img, startX, yPos, frameW, frameH);
+        });
+
+        // Draw footer
+        drawStripFooter(ctx, stripCanvas);
+      })
+      .catch(err => {
+        console.error("Error compiling photo strip:", err);
+      });
   }
 
   // Draw Apeach logo and texts onto the photo strip footer
@@ -215,27 +254,24 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillStyle = '#3a2525';
     ctx.font = 'bold 28px "Fredoka", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('APEACH BOOTH 🍑', 55, footerY);
+    ctx.fillText('APEACH BOOTH 🍑', 55, footerY - 10);
 
     // Draw Date stamp
     const today = new Date();
     const dateStr = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
     ctx.fillStyle = 'rgba(58, 37, 37, 0.6)';
-    ctx.font = '600 20px "Fredoka", sans-serif';
-    ctx.fillText(dateStr, 55, footerY + 35);
+    ctx.font = '600 18px "Fredoka", sans-serif';
+    ctx.fillText(dateStr, 55, footerY + 20);
 
-    // Draw generated Apeach character image on the right bottom corner
-    const footerImg = new Image();
-    footerImg.onload = () => {
-      // Draw image at right side of footer (width = 90px, height = 90px)
-      ctx.drawImage(footerImg, 450, 1695, 90, 90);
+    // Draw Dedication "Dành cho Maeve" (smaller, slightly faded into the background)
+    ctx.fillStyle = 'rgba(58, 37, 37, 0.35)';
+    ctx.font = '600 16px "Fredoka", sans-serif';
+    ctx.fillText('Dành cho Maeve', 55, footerY + 45);
 
-      // Save finalized URL to trigger downloading
-      compiledDataUrl = canvas.toDataURL('image/png');
-      btnDownload.disabled = false;
-      btnCapture.disabled = false;
-    };
-    footerImg.src = 'apeach_footer.png';
+    // Save finalized URL to trigger downloading
+    compiledDataUrl = canvas.toDataURL('image/png');
+    btnDownload.disabled = false;
+    btnCapture.disabled = false;
   }
 
   // Trigger download
@@ -261,6 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
     startCaptureSequence();
   });
 
-  // Initialize camera stream on startup
-  initCamera();
+  // Add listener to grant camera button
+  btnGrantCamera.addEventListener('click', initCamera);
 });
