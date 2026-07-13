@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apeach Photobooth 🍑</title>
+  <title>Apeach Photobooth 🌸</title>
   <!-- Import Fredoka Font for cute rounded typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1.1.4">
 </head>
 <body>
 
   <!-- Background Peach Petal falling elements decoration (pure CSS) -->
   <div class="decorations">
-    <div class="petal petal-1">🍑</div>
+    <div class="petal petal-1">🌸</div>
     <div class="petal petal-2">🌸</div>
-    <div class="petal petal-3">🍑</div>
+    <div class="petal petal-3">🌸</div>
     <div class="petal petal-4">🌸</div>
   </div>
 
@@ -24,7 +24,7 @@
     <!-- Header with cute Apeach SVG logo -->
     <header class="app-header">
       <h1>Apeach Booth</h1>
-      <p class="subtitle">Chụp hình Hàn Quốc 4 ô cực xinh xắn cùng Apeach! 🍑</p>
+      <p class="subtitle">Chụp hình Hàn Quốc 4 ô cực xinh xắn cùng Apeach! v1.1.4 🌸</p>
     </header>
 
     <!-- Main Workspace -->
@@ -64,7 +64,6 @@
           <!-- Capture button wrapper -->
           <div class="capture-action-wrapper">
             <button id="btn-capture" class="btn-capture">
-              <span class="btn-peach-icon">🍑</span>
               <span class="btn-text">Chụp Ảnh 📸</span>
             </button>
             <p class="capture-tip">Nhấn để đếm ngược 3, 2, 1 và chụp từng tấm hình cho dải ảnh!</p>
@@ -81,31 +80,27 @@
         <div class="strip-wrapper">
           <!-- The Vertical 4-cut Photo Strip -->
           <div class="photo-strip" id="photo-strip">
-            <!-- Custom header for strip -->
-            <div class="strip-header">
-              <span>APEACH BOOTH</span>
-            </div>
-
             <!-- 4 Frames -->
             <div class="strip-frames">
               <div class="frame-slot" data-index="0">
-                <div class="frame-placeholder">🍑 Khung 1</div>
+                <div class="frame-placeholder">🌸 Khung 1</div>
               </div>
               <div class="frame-slot" data-index="1">
-                <div class="frame-placeholder">🍑 Khung 2</div>
+                <div class="frame-placeholder">🌸 Khung 2</div>
               </div>
               <div class="frame-slot" data-index="2">
-                <div class="frame-placeholder">🍑 Khung 3</div>
+                <div class="frame-placeholder">🌸 Khung 3</div>
               </div>
               <div class="frame-slot" data-index="3">
-                <div class="frame-placeholder">🍑 Khung 4</div>
+                <div class="frame-placeholder">🌸 Khung 4</div>
               </div>
             </div>
 
             <!-- Custom footer for strip -->
             <div class="strip-footer">
               <div class="strip-footer-left">
-                <div class="strip-logo-text">Peach Love</div>
+                <div class="strip-logo-text">Apeach Photobooth</div>
+                <div class="strip-date" id="strip-date"></div>
                 <div class="strip-dedication">Dành cho Maeve</div>
               </div>
             </div>
@@ -122,8 +117,12 @@
         </div>
       </section>
     </main>
+
+    <footer class="app-footer">
+      <p>Made by Miu and Gemini 🌸</p>
+    </footer>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=1.1.4"></script>
 </body>
 </html>
