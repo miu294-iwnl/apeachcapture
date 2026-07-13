@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }, 1000);
     });
-  });
+  }
 
   // Capture single frame from video and process mirroring + filters
   function capturePhoto(index) {
