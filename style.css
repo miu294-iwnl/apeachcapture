@@ -2,21 +2,27 @@
 
 :root {
   /* Cute Pastel Pink & Peach Color Scheme */
-  --bg-gradient-start: hsl(350, 100%, 94%); /* Very soft pink */
-  --bg-gradient-end: hsl(20, 100%, 92%);    /* Warm pastel peach */
-  
+  --bg-gradient-start: hsl(350, 100%, 94%);
+  /* Very soft pink */
+  --bg-gradient-end: hsl(20, 100%, 92%);
+  /* Warm pastel peach */
+
   --panel-bg: rgba(255, 255, 255, 0.75);
   --panel-border: hsl(343, 85%, 65%);
   --panel-shadow: rgba(220, 130, 140, 0.25);
-  
-  --primary-pink: hsl(350, 100%, 88%);   /* Apeach skin color */
-  --dark-pink: hsl(343, 85%, 63%);      /* Main contrast color */
-  --peach-orange: hsl(20, 100%, 75%);    /* Cam đào accent */
-  --text-dark: hsl(343, 40%, 25%);       /* Nâu hồng ấm */
-  --text-light: hsl(350, 100%, 97%);
-  
 
-  
+  --primary-pink: hsl(350, 100%, 88%);
+  /* Apeach skin color */
+  --dark-pink: hsl(343, 85%, 63%);
+  /* Main contrast color */
+  --peach-orange: hsl(20, 100%, 75%);
+  /* Cam đào accent */
+  --text-dark: hsl(343, 40%, 25%);
+  /* Nâu hồng ấm */
+  --text-light: hsl(350, 100%, 97%);
+
+
+
   --font-family: 'Fredoka', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --border-radius-large: 24px;
   --border-radius-medium: 16px;
@@ -61,14 +67,42 @@ body {
   animation: floatSlow 12s infinite ease-in-out;
 }
 
-.petal-1 { top: 15%; left: 8%; animation-delay: 0s; }
-.petal-2 { top: 75%; left: 12%; animation-delay: 3s; font-size: 20px; }
-.petal-3 { top: 20%; right: 10%; animation-delay: 1.5s; }
-.petal-4 { top: 80%; right: 15%; animation-delay: 4.5s; font-size: 18px; }
+.petal-1 {
+  top: 15%;
+  left: 8%;
+  animation-delay: 0s;
+}
+
+.petal-2 {
+  top: 75%;
+  left: 12%;
+  animation-delay: 3s;
+  font-size: 20px;
+}
+
+.petal-3 {
+  top: 20%;
+  right: 10%;
+  animation-delay: 1.5s;
+}
+
+.petal-4 {
+  top: 80%;
+  right: 15%;
+  animation-delay: 4.5s;
+  font-size: 18px;
+}
 
 @keyframes floatSlow {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(15deg); }
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(15deg);
+  }
 }
 
 /* --- APP CONTAINER --- */
@@ -98,8 +132,15 @@ body {
 }
 
 @keyframes heartPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .app-header h1 {
@@ -131,7 +172,7 @@ body {
   background: var(--panel-bg);
   border: 4px solid var(--panel-border);
   border-radius: var(--border-radius-large);
-  box-shadow: 0 12px 32px var(--panel-shadow), inset 0 2px 0 rgba(255,255,255,0.6);
+  box-shadow: 0 12px 32px var(--panel-shadow), inset 0 2px 0 rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   padding: 24px;
@@ -182,7 +223,8 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* Mirror camera feed for natural usage */
+  transform: scaleX(-1);
+  /* Mirror camera feed for natural usage */
   transition: filter 0.3s ease;
 }
 
@@ -211,9 +253,20 @@ body {
 }
 
 @keyframes countdownTick {
-  0% { transform: scale(0.3); opacity: 0; }
-  25% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  25% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Flash Mask animation */
@@ -234,8 +287,13 @@ body {
 }
 
 @keyframes cameraFlash {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 /* Camera Permission Prompt */
@@ -413,7 +471,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
 }
@@ -422,8 +480,11 @@ body {
 .photo-strip::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   pointer-events: none;
   z-index: 5;
 }
@@ -434,7 +495,7 @@ body {
   font-weight: 700;
   letter-spacing: 2px;
   color: var(--primary-pink);
-  text-shadow: 0 1px 0 rgba(0,0,0,0.05);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 }
 
 .strip-frames {
@@ -449,7 +510,7 @@ body {
   aspect-ratio: 4/3;
   background: #f7f7f7;
   border-radius: 4px;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -469,13 +530,19 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* Kept mirrored for natural display */
   animation: slideInPhoto 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes slideInPhoto {
-  0% { transform: scale(0.8) scaleX(-1); opacity: 0; }
-  100% { transform: scale(1) scaleX(-1); opacity: 1; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .strip-footer {
@@ -498,6 +565,13 @@ body {
   font-weight: 700;
   color: var(--primary-pink);
   line-height: 1;
+}
+
+.strip-date {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(58, 37, 37, 0.6);
+  line-height: 1.2;
 }
 
 .strip-dedication {
@@ -569,16 +643,16 @@ body {
   body {
     padding: 10px;
   }
-  
+
   .app-header h1 {
     font-size: 2.2rem;
   }
-  
+
   .main-workspace {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .panel {
     padding: 16px;
   }
@@ -586,4 +660,15 @@ body {
 
 .hidden {
   display: none !important;
+}
+
+/* Page Footer styling */
+.app-footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  opacity: 0.7;
+  margin-top: 24px;
 }
