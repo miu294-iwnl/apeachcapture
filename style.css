@@ -238,6 +238,66 @@ body {
   100% { opacity: 0; }
 }
 
+/* Camera Permission Prompt */
+.camera-prompt {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--panel-bg);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 15px;
+  color: var(--text-dark);
+  z-index: 15;
+}
+
+.prompt-icon {
+  font-size: 3rem;
+  animation: heartPulse 2s infinite ease-in-out;
+}
+
+.camera-prompt h3 {
+  font-size: 1.4rem;
+  color: var(--dark-pink);
+  font-weight: 700;
+}
+
+.camera-prompt p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 340px;
+  margin-bottom: 5px;
+}
+
+.btn-grant-camera {
+  background: linear-gradient(135deg, var(--peach-orange), var(--dark-pink));
+  border: none;
+  border-radius: 50px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245, 141, 158, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-grant-camera:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(245, 141, 158, 0.4);
+}
+
+.btn-grant-camera:active {
+  transform: translateY(0) scale(0.98);
+}
+
 /* Camera Error display */
 .camera-error {
   position: absolute;
@@ -258,7 +318,6 @@ body {
 
 .error-icon {
   font-size: 3rem;
-  animation: floatSlow 3s infinite ease-in-out;
 }
 
 .camera-error h3 {
@@ -427,10 +486,26 @@ body {
   border-top: 1px dashed rgba(245, 141, 158, 0.2);
 }
 
+.strip-footer-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
 .strip-logo-text {
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--primary-pink);
+  line-height: 1;
+}
+
+.strip-dedication {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: rgba(58, 37, 37, 0.45);
+  letter-spacing: 0.5px;
+  line-height: 1.2;
 }
 
 .strip-logo {
