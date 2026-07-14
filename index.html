@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apeach Photobooth 🌸</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <!-- Import Fredoka Font for cute rounded typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -61,12 +62,37 @@
 
         <!-- Controls section -->
         <div class="controls-container">
-          <!-- Capture button wrapper -->
-          <div class="capture-action-wrapper">
-            <button id="btn-capture" class="btn-capture">
-              <span class="btn-text">Chụp Ảnh 📸</span>
-            </button>
-            <p class="capture-tip">Nhấn để đếm ngược 3, 2, 1 và chụp từng tấm hình cho dải ảnh!</p>
+          <!-- Hidden upload input -->
+          <input type="file" id="upload-input" accept="image/*" class="hidden">
+
+          <!-- Normal Capture/Upload Mode -->
+          <div id="normal-controls" class="capture-action-wrapper">
+            <div class="capture-buttons-row">
+              <button id="btn-capture" class="btn-capture">
+                <span class="btn-text">Chụp Ảnh 📸</span>
+              </button>
+              <button id="btn-upload-photo" class="btn-upload-photo">
+                <span class="btn-text">Tải Ảnh 📤</span>
+              </button>
+            </div>
+            <p class="capture-tip">Đếm ngược 3s chụp ảnh hoặc tải ảnh lên cho từng khung hình!</p>
+          </div>
+
+          <!-- Staging / Adjustment Mode -->
+          <div id="staging-controls" class="staging-controls-container hidden">
+            <p class="staging-tip">🌸 Kéo thả hình ảnh trong ô để điều chỉnh vị trí!</p>
+            <div class="zoom-control-wrapper">
+              <label for="zoom-slider">Thu phóng: <span id="zoom-value">100%</span></label>
+              <input type="range" id="zoom-slider" min="0.5" max="3" step="0.05" value="1">
+            </div>
+            <div class="staging-actions-row">
+              <button id="btn-confirm-photo" class="btn-confirm-photo">
+                <span>Xác nhận ✅</span>
+              </button>
+              <button id="btn-cancel-staging" class="btn-cancel-staging">
+                <span>Chụp/Tải lại 🔄</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -102,6 +128,9 @@
                 <div class="strip-logo-text">Apeach Photobooth</div>
                 <div class="strip-date" id="strip-date"></div>
                 <div class="strip-dedication">Dành cho Maeve</div>
+              </div>
+              <div class="strip-footer-right">
+                <img src="apeach_footer.png" alt="Apeach Heart" class="footer-logo-img">
               </div>
             </div>
           </div>
