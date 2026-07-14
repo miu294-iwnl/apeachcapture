@@ -136,6 +136,35 @@
           </div>
         </div>
 
+        <!-- Photo Strip Customizer Box -->
+        <div class="strip-customizer">
+          <!-- Background Color Selector -->
+          <div class="bg-color-selector">
+            <span class="selector-label">Màu nền dải ảnh:</span>
+            <div class="color-options">
+              <label class="color-option-label">
+                <input type="radio" name="bg-color-choice" value="#ffffff" checked>
+                <span>Trắng</span>
+              </label>
+              <label class="color-option-label">
+                <input type="radio" name="bg-color-choice" value="#ffe3e8">
+                <span>Hồng</span>
+              </label>
+              <label class="color-option-label">
+                <input type="radio" name="bg-color-choice" value="custom" id="radio-custom-color">
+                <span>Tùy chỉnh:</span>
+                <input type="color" id="custom-color-picker" value="#ffe0e5">
+              </label>
+            </div>
+          </div>
+
+          <!-- Signature / Dedication Input -->
+          <div class="dedication-selector">
+            <label for="input-dedication" class="selector-label">Chữ ký dòng cuối:</label>
+            <input type="text" id="input-dedication" value="Dành cho Maeve" placeholder="Nhập chữ ký của bạn..." maxlength="30">
+          </div>
+        </div>
+
         <div class="actions-container">
           <button id="btn-download" class="btn-download" disabled>
             <span>Xuất Dải Ảnh 💾</span>
