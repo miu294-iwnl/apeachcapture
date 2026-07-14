@@ -832,6 +832,7 @@ body {
   cursor: grab;
   user-select: none;
   -webkit-user-drag: none;
+  touch-action: none;
 }
 
 .captured-image.staging:active {
