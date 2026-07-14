@@ -582,6 +582,17 @@ body {
   line-height: 1.2;
 }
 
+.strip-footer-right {
+  display: flex;
+  align-items: center;
+}
+
+.footer-logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
 .strip-logo {
   display: flex;
   align-items: center;
@@ -636,6 +647,195 @@ body {
 .btn-reset:hover {
   background: rgba(255, 200, 200, 0.15);
   border-color: var(--dark-pink);
+}
+
+
+/* --- NEW UPLOAD & STAGING STYLES --- */
+.capture-buttons-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-upload-photo {
+  background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
+  border: none;
+  border-radius: 50px;
+  padding: 14px 28px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(245, 141, 158, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-upload-photo:hover:not(:disabled) {
+  transform: scale(1.04) translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 141, 158, 0.45);
+}
+
+.btn-upload-photo:active:not(:disabled) {
+  transform: scale(0.98) translateY(0);
+}
+
+.btn-upload-photo:disabled {
+  background: #cccccc;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Flashing Active Slot Border */
+.frame-slot.active-slot {
+  border: 3px dashed var(--dark-pink) !important;
+  animation: activeSlotPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes activeSlotPulse {
+  0%, 100% {
+    box-shadow: inset 0 0 5px rgba(245, 141, 158, 0.5), 0 0 6px var(--dark-pink);
+    border-color: var(--dark-pink);
+  }
+  50% {
+    box-shadow: inset 0 0 8px rgba(245, 141, 158, 0.3), 0 0 14px var(--peach-orange);
+    border-color: var(--peach-orange);
+  }
+}
+
+/* Staging / Adjustment Mode Layout */
+.staging-controls-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px dashed var(--panel-border);
+  border-radius: var(--border-radius-medium);
+  padding: 18px;
+  width: 100%;
+  box-shadow: 0 8px 24px var(--panel-shadow);
+  animation: fadeInStaging 0.3s ease forwards;
+}
+
+@keyframes fadeInStaging {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.staging-tip {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  font-weight: 600;
+  text-align: center;
+}
+
+.zoom-control-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.zoom-control-wrapper label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.zoom-control-wrapper input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #ffdae0;
+  outline: none;
+  cursor: pointer;
+}
+
+.zoom-control-wrapper input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--dark-pink);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.1s ease;
+}
+
+.zoom-control-wrapper input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.staging-actions-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.btn-confirm-photo {
+  background: linear-gradient(135deg, var(--peach-orange), var(--dark-pink));
+  border: none;
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245, 141, 158, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-confirm-photo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 141, 158, 0.45);
+}
+
+.btn-cancel-staging {
+  background: transparent;
+  border: 2px solid var(--dark-pink);
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel-staging:hover {
+  background: rgba(255, 200, 200, 0.15);
+}
+
+.captured-image.staging,
+.captured-image.adjusted {
+  animation: none !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: fill !important;
+}
+
+.captured-image.staging {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.captured-image.staging:active {
+  cursor: grabbing;
 }
 
 /* --- RESPONSIVE FALLBACKS --- */
