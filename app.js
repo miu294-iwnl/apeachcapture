@@ -286,19 +286,15 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.readAsDataURL(file);
   });
 
-  // Drag and Drop (Pan) Logic inside frame slots
+  // Drag and Drop (Pan) Logic inside frame slots using unified Pointer Events
   let isDragging = false;
   let startDragX = 0;
   let startDragY = 0;
 
-  photoStrip.addEventListener('mousedown', startDrag);
-  photoStrip.addEventListener('touchstart', startDrag, { passive: false });
-
-  window.addEventListener('mousemove', drag);
-  window.addEventListener('touchmove', drag, { passive: false });
-
-  window.addEventListener('mouseup', endDrag);
-  window.addEventListener('touchend', endDrag);
+  photoStrip.addEventListener('pointerdown', startDrag);
+  window.addEventListener('pointermove', drag);
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
 
   function startDrag(e) {
     if (!stagingPhoto) return;
@@ -308,11 +304,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     isDragging = true;
     
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    // Pointer Events naturally have clientX and clientY for both mouse and touch!
+    startDragX = e.clientX - stagingPhoto.x;
+    startDragY = e.clientY - stagingPhoto.y;
 
-    startDragX = clientX - stagingPhoto.x;
-    startDragY = clientY - stagingPhoto.y;
+    // Capture the pointer to keep receiving events even if the finger moves off-element
+    try {
+      target.setPointerCapture(e.pointerId);
+    } catch (err) {
+      console.warn("Could not capture pointer:", err);
+    }
 
     e.preventDefault();
   }
@@ -320,11 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function drag(e) {
     if (!isDragging || !stagingPhoto) return;
 
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-    let newX = clientX - startDragX;
-    let newY = clientY - startDragY;
+    let newX = e.clientX - startDragX;
+    let newY = e.clientY - startDragY;
 
     // Apply boundaries constraints
     const W = stagingPhoto.baseWidth * stagingPhoto.scale;
@@ -356,7 +354,15 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
   }
 
-  function endDrag() {
+  function endDrag(e) {
+    if (isDragging && stagingPhoto) {
+      const imgEl = frameSlots[currentSlotIndex].querySelector('.captured-image.staging');
+      if (imgEl && e) {
+        try {
+          imgEl.releasePointerCapture(e.pointerId);
+        } catch (err) {}
+      }
+    }
     isDragging = false;
   }
 
