@@ -487,11 +487,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateActiveSlotHighlight();
   }
 
-  // Draw custom vertical 4-cut collage canvas
+  // Draw custom vertical 4-cut collage canvas in Full HD size (1080x3348)
   function compilePhotoStrip() {
     const stripCanvas = document.createElement('canvas');
-    stripCanvas.width = 600;
-    stripCanvas.height = 1860;
+    stripCanvas.width = 1080;
+    stripCanvas.height = 3348;
     const ctx = stripCanvas.getContext('2d');
 
     // 1. Draw solid white background matching web
@@ -499,16 +499,16 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
     // 2. Draw subtle border around the canvas
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 8;
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.strokeRect(2, 2, stripCanvas.width - 4, stripCanvas.height - 4);
+    ctx.strokeRect(4, 4, stripCanvas.width - 8, stripCanvas.height - 8);
 
-    // 3. Layout constants for frames
-    const frameW = 524;
-    const frameH = 393;
-    const startX = 38;
-    const startY = 44;
-    const gap = 27;
+    // 3. Layout constants for frames (Scaled to Full HD)
+    const frameW = 944;
+    const frameH = 708;
+    const startX = 68;
+    const startY = 80;
+    const gap = 49;
 
     // Load all 4 photos as promises
     const loadPromises = photos.map((photoObj, i) => {
@@ -542,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ctx.fillStyle = '#f7f7f7';
           ctx.beginPath();
           if ('roundRect' in ctx) {
-            ctx.roundRect(startX, yPos, frameW, frameH, 11);
+            ctx.roundRect(startX, yPos, frameW, frameH, 20);
           } else {
             ctx.rect(startX, yPos, frameW, frameH);
           }
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // Create rounded rectangle path for clipping
           ctx.beginPath();
           if ('roundRect' in ctx) {
-            ctx.roundRect(startX, yPos, frameW, frameH, 11);
+            ctx.roundRect(startX, yPos, frameW, frameH, 20);
           } else {
             ctx.rect(startX, yPos, frameW, frameH);
           }
@@ -585,11 +585,11 @@ document.addEventListener('DOMContentLoaded', () => {
           ctx.restore();
 
           // Draw frame slot border
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 5;
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
           ctx.beginPath();
           if ('roundRect' in ctx) {
-            ctx.roundRect(startX, yPos, frameW, frameH, 11);
+            ctx.roundRect(startX, yPos, frameW, frameH, 20);
           } else {
             ctx.rect(startX, yPos, frameW, frameH);
           }
@@ -604,44 +604,44 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // Draw Apeach logo and texts onto the photo strip footer
+  // Draw Apeach logo and texts onto the photo strip footer (Scaled to Full HD)
   function drawStripFooter(ctx, canvas, footerLogoImg) {
-    const footerY = 1730;
+    const footerY = 3118;
 
     // Draw dashed divider line
     ctx.strokeStyle = 'rgba(245, 141, 158, 0.2)';
-    ctx.lineWidth = 3;
-    ctx.setLineDash([8, 8]);
+    ctx.lineWidth = 5;
+    ctx.setLineDash([14, 14]);
     ctx.beginPath();
-    ctx.moveTo(38, footerY);
-    ctx.lineTo(562, footerY);
+    ctx.moveTo(68, footerY);
+    ctx.lineTo(1012, footerY);
     ctx.stroke();
     ctx.setLineDash([]); // Reset line dash
 
     // Draw "Apeach Photobooth" logo text
     ctx.fillStyle = '#ffc8c8';
-    ctx.font = '700 32px "Fredoka", sans-serif';
+    ctx.font = '700 58px "Fredoka", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('Apeach Photobooth', 38, footerY + 16 + 28);
+    ctx.fillText('Apeach Photobooth', 68, footerY + 79);
 
     // Draw Date stamp
     ctx.fillStyle = 'rgba(58, 37, 37, 0.6)';
-    ctx.font = '600 20px "Fredoka", sans-serif';
+    ctx.font = '600 36px "Fredoka", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(getCurrentDateString(), 38, footerY + 16 + 28 + 8 + 20);
+    ctx.fillText(getCurrentDateString(), 68, footerY + 130);
 
     // Draw "Dành cho Maeve" dedication text
     ctx.fillStyle = 'rgba(58, 37, 37, 0.45)';
-    ctx.font = '600 18px "Fredoka", sans-serif';
+    ctx.font = '600 32px "Fredoka", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('Dành cho Maeve', 38, footerY + 16 + 28 + 8 + 20 + 8 + 18);
+    ctx.fillText('Dành cho Maeve', 68, footerY + 176);
 
     // Draw footer logo image on the right next to the texts
     if (footerLogoImg) {
-      const logoH = 100; // Height of the footer logo
+      const logoH = 180; // Height of the footer logo
       const logoW = logoH * (footerLogoImg.width / footerLogoImg.height);
-      const logoX = 562 - logoW; // Align to the right margin
-      const logoY = footerY + 18; // Vertically align with the text block
+      const logoX = 1012 - logoW; // Align to the right margin
+      const logoY = footerY + 32; // Vertically align with the text block
       ctx.drawImage(footerLogoImg, logoX, logoY, logoW, logoH);
     }
 
@@ -650,105 +650,23 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDownload.disabled = false;
   }
 
-  // Trigger download / export to new page
+  // Trigger download / export to new page ending in /preview
   btnDownload.addEventListener('click', () => {
     if (!compiledDataUrl) return;
 
+    // Store compiled strip data URL in sessionStorage
     try {
-      const newWindow = window.open();
-      if (newWindow) {
-        newWindow.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Apeach Photobooth 🌸</title>
-              <link rel="preconnect" href="https://fonts.googleapis.com">
-              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-              <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-              <style>
-                body {
-                  margin: 0;
-                  padding: 20px;
-                  background: linear-gradient(135deg, #ffeef1 0%, #fff0e6 100%);
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  min-height: 100vh;
-                  font-family: 'Fredoka', sans-serif;
-                  color: #3a2525;
-                  box-sizing: border-box;
-                }
-                .container {
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  max-width: 400px;
-                  width: 100%;
-                }
-                .tip {
-                  background: rgba(255, 255, 255, 0.95);
-                  padding: 14px 24px;
-                  border: 2px dashed #ff8d9e;
-                  border-radius: 20px;
-                  box-shadow: 0 4px 15px rgba(245, 141, 158, 0.15);
-                  font-weight: 600;
-                  margin-bottom: 20px;
-                  font-size: 15px;
-                  text-align: center;
-                  line-height: 1.4;
-                }
-                img {
-                  width: 100%;
-                  max-width: 280px;
-                  border-radius: 12px;
-                  box-shadow: 0 12px 32px rgba(220, 130, 140, 0.3);
-                  border: 6px solid #fff;
-                  box-sizing: border-box;
-                }
-                .back-btn {
-                  margin-top: 20px;
-                  background: linear-gradient(135deg, #ff8d9e, #ffb5c5);
-                  border: none;
-                  border-radius: 50px;
-                  padding: 10px 24px;
-                  font-size: 0.95rem;
-                  font-weight: 700;
-                  color: #fff;
-                  cursor: pointer;
-                  box-shadow: 0 4px 12px rgba(245, 141, 158, 0.35);
-                  transition: all 0.2s ease;
-                }
-                .back-btn:hover {
-                  transform: translateY(-2px);
-                }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="tip">🌸 Nhấn giữ lâu vào dải ảnh bên dưới và chọn "Lưu hình ảnh" để lưu về điện thoại nhé! 🌸</div>
-                <img src="${compiledDataUrl}" alt="Apeach Photobooth">
-                <button onclick="window.close()" class="back-btn">Đóng Trang ❌</button>
-              </div>
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-      } else {
-        // Fallback for pop-up blockers: trigger direct anchor download
-        const link = document.createElement('a');
-        link.download = `apeach_photobooth_${Date.now()}.png`;
-        link.href = compiledDataUrl;
-        link.click();
+      sessionStorage.setItem('compiledStrip', compiledDataUrl);
+      
+      // Open in new tab/window pointing to 'preview' (which maps to /preview/ directory)
+      const newWindow = window.open('preview', '_blank');
+      if (!newWindow) {
+        // Fallback for pop-up blockers: navigate current window
+        window.location.href = 'preview';
       }
     } catch (err) {
-      console.error("Popup block or write error, fallback to direct download:", err);
-      const link = document.createElement('a');
-      link.download = `apeach_photobooth_${Date.now()}.png`;
-      link.href = compiledDataUrl;
-      link.click();
+      console.warn("sessionStorage or window.open failed, redirecting:", err);
+      window.location.href = 'preview';
     }
   });
 
