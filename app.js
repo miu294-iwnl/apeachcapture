@@ -24,6 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnConfirmPhoto = document.getElementById('btn-confirm-photo');
   const btnCancelStaging = document.getElementById('btn-cancel-staging');
   const photoStrip = document.getElementById('photo-strip');
+  
+  // Background Color Selectors
+  const bgRadioChoices = document.querySelectorAll('input[name="bg-color-choice"]');
+  const customColorPicker = document.getElementById('custom-color-picker');
+  const radioCustomColor = document.getElementById('radio-custom-color');
+
+  // Signature Selectors
+  const inputDedication = document.getElementById('input-dedication');
+  const stripDedicationEl = document.querySelector('.strip-dedication');
 
   // Application State
   let stream = null;
@@ -32,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let compiledDataUrl = null;
   let currentSlotIndex = 0;
   let stagingPhoto = null; // Will temporarily store active photo before confirmation
+  let currentBgColor = '#ffffff'; // Stored active background color
+  let currentDedication = 'Dành cho Maeve'; // Stored active signature text
 
   // Get current date string in format DD/MM/YYYY
   function getCurrentDateString() {
@@ -469,6 +480,25 @@ document.addEventListener('DOMContentLoaded', () => {
     compiledDataUrl = null;
     btnDownload.disabled = true;
     
+    // Reset background color selections to white
+    currentBgColor = '#ffffff';
+    photoStrip.style.backgroundColor = '#ffffff';
+    bgRadioChoices.forEach(radio => {
+      if (radio.value === '#ffffff') {
+        radio.checked = true;
+      } else {
+        radio.checked = false;
+      }
+    });
+    customColorPicker.value = '#ffe0e5';
+
+    // Reset signature text to default
+    currentDedication = 'Dành cho Maeve';
+    inputDedication.value = 'Dành cho Maeve';
+    if (stripDedicationEl) {
+      stripDedicationEl.textContent = 'Dành cho Maeve';
+    }
+
     frameSlots.forEach((slot, index) => {
       slot.innerHTML = `<div class="frame-placeholder">🌸 Khung ${index + 1}</div>`;
     });
@@ -494,8 +524,8 @@ document.addEventListener('DOMContentLoaded', () => {
     stripCanvas.height = 3348;
     const ctx = stripCanvas.getContext('2d');
 
-    // 1. Draw solid white background matching web
-    ctx.fillStyle = '#ffffff';
+    // 1. Draw solid background color matching web
+    ctx.fillStyle = currentBgColor;
     ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
     // 2. Draw subtle border around the canvas
@@ -630,11 +660,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.textAlign = 'left';
     ctx.fillText(getCurrentDateString(), 68, footerY + 130);
 
-    // Draw "Dành cho Maeve" dedication text
+    // Draw dedication text (signature)
     ctx.fillStyle = 'rgba(58, 37, 37, 0.45)';
     ctx.font = '600 32px "Fredoka", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('Dành cho Maeve', 68, footerY + 176);
+    ctx.fillText(currentDedication, 68, footerY + 176);
 
     // Draw footer logo image on the right next to the texts
     if (footerLogoImg) {
@@ -667,6 +697,50 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.warn("sessionStorage or window.open failed, redirecting:", err);
       window.location.href = 'preview';
+    }
+  });
+
+  // Background color selection event handlers
+  function updateBackgroundColor(color) {
+    currentBgColor = color;
+    photoStrip.style.backgroundColor = color;
+    
+    // Auto re-compile canvas if the photo strip is already complete
+    if (photos.length === 4) {
+      compilePhotoStrip();
+    }
+  }
+
+  bgRadioChoices.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      if (e.target.value === 'custom') {
+        updateBackgroundColor(customColorPicker.value);
+      } else {
+        updateBackgroundColor(e.target.value);
+      }
+    });
+  });
+
+  customColorPicker.addEventListener('input', () => {
+    radioCustomColor.checked = true;
+    updateBackgroundColor(customColorPicker.value);
+  });
+
+  customColorPicker.addEventListener('change', () => {
+    radioCustomColor.checked = true;
+    updateBackgroundColor(customColorPicker.value);
+  });
+
+  // Signature input event handler
+  inputDedication.addEventListener('input', (e) => {
+    const val = e.target.value;
+    currentDedication = val;
+    if (stripDedicationEl) {
+      stripDedicationEl.textContent = val;
+    }
+    // Auto re-compile canvas if the photo strip is already complete
+    if (photos.length === 4) {
+      compilePhotoStrip();
     }
   });
 
