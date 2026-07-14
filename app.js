@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       btnCapture.disabled = true;
       btnUploadPhoto.disabled = true;
-      btnReset.disabled = true;
+      btnReset.disabled = false;
     };
     img.src = dataUrl;
   }
@@ -650,14 +650,106 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDownload.disabled = false;
   }
 
-  // Trigger download
+  // Trigger download / export to new page
   btnDownload.addEventListener('click', () => {
     if (!compiledDataUrl) return;
 
-    const link = document.createElement('a');
-    link.download = `apeach_photobooth_${Date.now()}.png`;
-    link.href = compiledDataUrl;
-    link.click();
+    try {
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Apeach Photobooth 🌸</title>
+              <link rel="preconnect" href="https://fonts.googleapis.com">
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+              <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+              <style>
+                body {
+                  margin: 0;
+                  padding: 20px;
+                  background: linear-gradient(135deg, #ffeef1 0%, #fff0e6 100%);
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  min-height: 100vh;
+                  font-family: 'Fredoka', sans-serif;
+                  color: #3a2525;
+                  box-sizing: border-box;
+                }
+                .container {
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  max-width: 400px;
+                  width: 100%;
+                }
+                .tip {
+                  background: rgba(255, 255, 255, 0.95);
+                  padding: 14px 24px;
+                  border: 2px dashed #ff8d9e;
+                  border-radius: 20px;
+                  box-shadow: 0 4px 15px rgba(245, 141, 158, 0.15);
+                  font-weight: 600;
+                  margin-bottom: 20px;
+                  font-size: 15px;
+                  text-align: center;
+                  line-height: 1.4;
+                }
+                img {
+                  width: 100%;
+                  max-width: 280px;
+                  border-radius: 12px;
+                  box-shadow: 0 12px 32px rgba(220, 130, 140, 0.3);
+                  border: 6px solid #fff;
+                  box-sizing: border-box;
+                }
+                .back-btn {
+                  margin-top: 20px;
+                  background: linear-gradient(135deg, #ff8d9e, #ffb5c5);
+                  border: none;
+                  border-radius: 50px;
+                  padding: 10px 24px;
+                  font-size: 0.95rem;
+                  font-weight: 700;
+                  color: #fff;
+                  cursor: pointer;
+                  box-shadow: 0 4px 12px rgba(245, 141, 158, 0.35);
+                  transition: all 0.2s ease;
+                }
+                .back-btn:hover {
+                  transform: translateY(-2px);
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="tip">🌸 Nhấn giữ lâu vào dải ảnh bên dưới và chọn "Lưu hình ảnh" để lưu về điện thoại nhé! 🌸</div>
+                <img src="${compiledDataUrl}" alt="Apeach Photobooth">
+                <button onclick="window.close()" class="back-btn">Đóng Trang ❌</button>
+              </div>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      } else {
+        // Fallback for pop-up blockers: trigger direct anchor download
+        const link = document.createElement('a');
+        link.download = `apeach_photobooth_${Date.now()}.png`;
+        link.href = compiledDataUrl;
+        link.click();
+      }
+    } catch (err) {
+      console.error("Popup block or write error, fallback to direct download:", err);
+      const link = document.createElement('a');
+      link.download = `apeach_photobooth_${Date.now()}.png`;
+      link.href = compiledDataUrl;
+      link.click();
+    }
   });
 
   // Reset button trigger
