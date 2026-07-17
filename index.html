@@ -30,7 +30,17 @@
 
     <!-- Main Workspace -->
     <main class="main-workspace">
-      <!-- Left Panel: Live Camera & Controls -->
+      <!-- Left Sidebar: Layout Menu -->
+      <section class="panel layout-panel">
+        <div class="panel-header">
+          <h2>Chọn Khung Hình 📐</h2>
+        </div>
+        <div class="layout-menu" id="layout-menu">
+          <!-- Dynamically populated menu items -->
+        </div>
+      </section>
+
+      <!-- Center Panel: Live Camera & Controls -->
       <section class="panel camera-panel">
         <div class="panel-header">
           <h2>Bốt Chụp Ảnh Trực Tiếp 🎥</h2>
@@ -106,20 +116,9 @@
         <div class="strip-wrapper">
           <!-- The Vertical 4-cut Photo Strip -->
           <div class="photo-strip" id="photo-strip">
-            <!-- 4 Frames -->
-            <div class="strip-frames">
-              <div class="frame-slot" data-index="0">
-                <div class="frame-placeholder">🌸 Khung 1</div>
-              </div>
-              <div class="frame-slot" data-index="1">
-                <div class="frame-placeholder">🌸 Khung 2</div>
-              </div>
-              <div class="frame-slot" data-index="2">
-                <div class="frame-placeholder">🌸 Khung 3</div>
-              </div>
-              <div class="frame-slot" data-index="3">
-                <div class="frame-placeholder">🌸 Khung 4</div>
-              </div>
+            <!-- Dynamic Slots Frame -->
+            <div class="strip-frames" id="strip-frames">
+              <!-- Dynamically generated based on active layout -->
             </div>
 
             <!-- Custom footer for strip -->
