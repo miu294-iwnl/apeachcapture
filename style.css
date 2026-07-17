@@ -108,7 +108,7 @@ body {
 /* --- APP CONTAINER --- */
 .app-container {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1380px;
   position: relative;
   z-index: 2;
   display: flex;
@@ -162,9 +162,119 @@ body {
 /* --- MAIN WORKSPACE --- */
 .main-workspace {
   display: grid;
-  grid-template-columns: 1.25fr 0.75fr;
+  grid-template-columns: 260px 1.25fr 0.75fr;
   gap: 24px;
   width: 100%;
+}
+
+/* --- LAYOUT PANEL (LEFT SIDEBAR) --- */
+.layout-panel {
+  flex-shrink: 0;
+  max-height: 85vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-pink) rgba(255, 255, 255, 0.3);
+}
+
+.layout-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.layout-panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.layout-panel::-webkit-scrollbar-thumb {
+  background: var(--primary-pink);
+  border-radius: 10px;
+}
+
+.layout-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--dark-pink);
+}
+
+.layout-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-divider {
+  border-top: 1.5px dashed rgba(245, 141, 158, 0.45);
+  margin: 2px 0;
+  width: 100%;
+}
+
+.layout-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--border-radius-medium);
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.layout-item:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--primary-pink);
+  transform: translateX(4px);
+}
+
+.layout-item.active {
+  background: var(--primary-pink);
+  border-color: var(--dark-pink);
+  box-shadow: 0 4px 12px var(--panel-shadow);
+}
+
+.layout-thumb {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f7f7f7;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  color: var(--text-dark);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.layout-item.active .layout-thumb {
+  background: #fff;
+  border-color: var(--dark-pink);
+  color: var(--dark-pink);
+}
+
+.layout-thumb-svg {
+  width: 85%;
+  height: 85%;
+  display: block;
+}
+
+.layout-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.layout-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.2;
+}
+
+.layout-desc {
+  font-size: 0.7rem;
+  color: rgba(58, 37, 37, 0.6);
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 /* Glassmorphism Panel styles */
@@ -463,17 +573,42 @@ body {
 
 /* Thick photo paper vertical strip container */
 .photo-strip {
-  width: 220px;
   background: #ffffff;
   border-radius: 8px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  padding: 16px 14px 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Size and Height Overrides for different layouts */
+.photo-strip.layout-2x6-4 {
+  width: 220px;
+  height: 682px;
+}
+
+.photo-strip.layout-2x6-3 {
+  width: 220px;
+  height: 550px;
+}
+
+.photo-strip.layout-4x6-6,
+.photo-strip.layout-4x6-portrait {
+  width: 280px;
+  height: 420px;
+}
+
+.photo-strip.layout-4x6-landscape,
+.photo-strip.layout-4x6-triple,
+.photo-strip.layout-4x6-3a,
+.photo-strip.layout-4x6-3b,
+.photo-strip.layout-4x6-4,
+.photo-strip.layout-4x6-2a,
+.photo-strip.layout-4x6-2b {
+  width: 360px;
+  height: 240px;
 }
 
 /* Paper noise effect overlay */
@@ -499,15 +634,16 @@ body {
 }
 
 .strip-frames {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* Frame Slot styling */
 .frame-slot {
-  width: 100%;
-  aspect-ratio: 4/3;
+  position: absolute;
   background: #f7f7f7;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -515,14 +651,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
+  box-sizing: border-box;
 }
 
 .frame-placeholder {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--primary-pink);
   opacity: 0.6;
   font-weight: 600;
+  text-align: center;
 }
 
 /* Dynamic Image rendering inside slots */
@@ -546,11 +683,121 @@ body {
 }
 
 .strip-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(245, 141, 158, 0.2);
+  border-top: 1.5px dashed rgba(245, 141, 158, 0.25);
+  background: transparent;
+  z-index: 6;
+  transition: all 0.3s ease;
+}
+
+/* Footer layout rules for vertical narrow layouts */
+.photo-strip.layout-2x6-4 .strip-footer,
+.photo-strip.layout-2x6-3 .strip-footer {
+  height: 52px;
+  padding: 0 12px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+.photo-strip.layout-2x6-4 .strip-logo-text,
+.photo-strip.layout-2x6-3 .strip-logo-text {
+  font-size: 0.7rem;
+}
+.photo-strip.layout-2x6-4 .strip-date,
+.photo-strip.layout-2x6-3 .strip-date {
+  font-size: 0.5rem;
+}
+.photo-strip.layout-2x6-4 .strip-dedication,
+.photo-strip.layout-2x6-3 .strip-dedication {
+  font-size: 0.45rem;
+}
+.photo-strip.layout-2x6-4 .footer-logo-img,
+.photo-strip.layout-2x6-3 .footer-logo-img {
+  height: 34px;
+}
+
+/* Footer layout rules for 4x6 Portrait layouts */
+.photo-strip.layout-4x6-6 .strip-footer,
+.photo-strip.layout-4x6-portrait .strip-footer {
+  height: 60px;
+  padding: 0 15px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+.photo-strip.layout-4x6-6 .strip-logo-text,
+.photo-strip.layout-4x6-portrait .strip-logo-text {
+  font-size: 0.72rem;
+}
+.photo-strip.layout-4x6-6 .strip-date,
+.photo-strip.layout-4x6-portrait .strip-date {
+  font-size: 0.5rem;
+}
+.photo-strip.layout-4x6-6 .strip-dedication,
+.photo-strip.layout-4x6-portrait .strip-dedication {
+  font-size: 0.45rem;
+}
+.photo-strip.layout-4x6-6 .footer-logo-img,
+.photo-strip.layout-4x6-portrait .footer-logo-img {
+  height: 35px;
+}
+
+/* Footer layout rules for 4x6 Landscape layouts */
+.photo-strip.layout-4x6-landscape .strip-footer,
+.photo-strip.layout-4x6-triple .strip-footer,
+.photo-strip.layout-4x6-3a .strip-footer,
+.photo-strip.layout-4x6-3b .strip-footer,
+.photo-strip.layout-4x6-4 .strip-footer,
+.photo-strip.layout-4x6-2a .strip-footer,
+.photo-strip.layout-4x6-2b .strip-footer {
+  height: 40px;
+  padding: 0 14px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+.photo-strip.layout-4x6-landscape .strip-logo-text,
+.photo-strip.layout-4x6-triple .strip-logo-text,
+.photo-strip.layout-4x6-3a .strip-logo-text,
+.photo-strip.layout-4x6-3b .strip-logo-text,
+.photo-strip.layout-4x6-4 .strip-logo-text,
+.photo-strip.layout-4x6-2a .strip-logo-text,
+.photo-strip.layout-4x6-2b .strip-logo-text {
+  font-size: 0.58rem;
+}
+.photo-strip.layout-4x6-landscape .strip-date,
+.photo-strip.layout-4x6-triple .strip-date,
+.photo-strip.layout-4x6-3a .strip-date,
+.photo-strip.layout-4x6-3b .strip-date,
+.photo-strip.layout-4x6-4 .strip-date,
+.photo-strip.layout-4x6-2a .strip-date,
+.photo-strip.layout-4x6-2b .strip-date {
+  font-size: 0.48rem;
+}
+.photo-strip.layout-4x6-landscape .strip-dedication,
+.photo-strip.layout-4x6-triple .strip-dedication,
+.photo-strip.layout-4x6-3a .strip-dedication,
+.photo-strip.layout-4x6-3b .strip-dedication,
+.photo-strip.layout-4x6-4 .strip-dedication,
+.photo-strip.layout-4x6-2a .strip-dedication,
+.photo-strip.layout-4x6-2b .strip-dedication {
+  font-size: 0.42rem;
+}
+.photo-strip.layout-4x6-landscape .footer-logo-img,
+.photo-strip.layout-4x6-triple .footer-logo-img,
+.photo-strip.layout-4x6-3a .footer-logo-img,
+.photo-strip.layout-4x6-3b .footer-logo-img,
+.photo-strip.layout-4x6-4 .footer-logo-img,
+.photo-strip.layout-4x6-2a .footer-logo-img,
+.photo-strip.layout-4x6-2b .footer-logo-img {
+  height: 24px;
 }
 
 .strip-footer-left {
@@ -561,21 +808,18 @@ body {
 }
 
 .strip-logo-text {
-  font-size: 0.75rem;
   font-weight: 700;
   color: var(--primary-pink);
   line-height: 1;
 }
 
 .strip-date {
-  font-size: 0.65rem;
   font-weight: 600;
   color: rgba(58, 37, 37, 0.6);
   line-height: 1.2;
 }
 
 .strip-dedication {
-  font-size: 0.6rem;
   font-weight: 600;
   color: rgba(58, 37, 37, 0.45);
   letter-spacing: 0.5px;
@@ -588,7 +832,6 @@ body {
 }
 
 .footer-logo-img {
-  height: 48px;
   width: auto;
   object-fit: contain;
 }
