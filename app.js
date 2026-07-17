@@ -17,6 +17,28 @@ document.addEventListener('DOMContentLoaded', () => {
   let frameSlots = [];
   const layoutMenu = document.getElementById('layout-menu');
   const stripFrames = document.getElementById('strip-frames');
+  
+  const btnToggleMenu = document.getElementById('btn-toggle-menu');
+  const menuBackdrop = document.getElementById('menu-backdrop');
+  const layoutPanel = document.querySelector('.layout-panel');
+
+  if (btnToggleMenu && menuBackdrop && layoutPanel) {
+    btnToggleMenu.addEventListener('click', () => {
+      layoutPanel.classList.toggle('open');
+      menuBackdrop.classList.toggle('open');
+      if (layoutPanel.classList.contains('open')) {
+        btnToggleMenu.classList.add('hidden');
+      } else {
+        btnToggleMenu.classList.remove('hidden');
+      }
+    });
+
+    menuBackdrop.addEventListener('click', () => {
+      layoutPanel.classList.remove('open');
+      menuBackdrop.classList.remove('open');
+      btnToggleMenu.classList.remove('hidden');
+    });
+  }
 
   // New DOM References for Upload and Staging Controls
   const btnUploadPhoto = document.getElementById('btn-upload-photo');
