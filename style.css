@@ -1205,6 +1205,58 @@ body {
   border-radius: 4px;
 }
 
+/* Mobile Menu Toggle Button */
+.btn-toggle-menu {
+  display: none; /* Hidden on desktop */
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001; /* Must be above layout-panel drawer (z-index 1000) */
+  background: var(--primary-pink);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-medium);
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245, 141, 158, 0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-toggle-menu:hover {
+  background: var(--dark-pink);
+  transform: scale(1.05);
+}
+
+.btn-toggle-menu:active {
+  transform: scale(0.95);
+}
+
+/* Menu Backdrop Overlay */
+.menu-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.menu-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* --- RESPONSIVE FALLBACKS --- */
 @media (max-width: 768px) {
   body {
@@ -1213,6 +1265,7 @@ body {
 
   .app-header h1 {
     font-size: 2.2rem;
+    margin-top: 10px;
   }
 
   .main-workspace {
@@ -1222,6 +1275,51 @@ body {
 
   .panel {
     padding: 16px;
+  }
+
+  /* Show toggle button and backdrop on mobile */
+  .btn-toggle-menu {
+    display: flex;
+  }
+
+  .menu-backdrop {
+    display: block;
+  }
+
+  /* Make left layout panel a slide-out drawer on mobile */
+  .layout-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 33vw; /* Occupies 1/3 of the screen width */
+    min-width: 260px; /* Safe minimum width for content */
+    max-width: 85vw; /* Don't cover too much of very small viewports */
+    height: 100vh;
+    max-height: 100vh;
+    z-index: 1000;
+    background: var(--panel-bg);
+    border-radius: 0 16px 16px 0;
+    box-shadow: 6px 0 24px rgba(0, 0, 0, 0.15);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 24px 16px;
+    box-sizing: border-box;
+  }
+
+  .layout-panel.open {
+    transform: translateX(0);
+  }
+
+  /* Add panel header space inside mobile drawer so title is readable */
+  .layout-panel .panel-header {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px dashed rgba(245, 141, 158, 0.25);
+  }
+
+  /* Push main content down slightly on mobile so it doesn't collide with the fixed button */
+  .app-container {
+    padding-top: 15px;
   }
 }
 
