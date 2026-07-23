@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +22,7 @@
       color: hsl(343, 40%, 25%);
       box-sizing: border-box;
     }
+
     .container {
       display: flex;
       flex-direction: column;
@@ -28,6 +30,7 @@
       max-width: 450px;
       width: 100%;
     }
+
     .tip {
       background: rgba(255, 255, 255, 0.95);
       padding: 14px 24px;
@@ -42,6 +45,7 @@
       box-sizing: border-box;
       width: 100%;
     }
+
     .img-wrapper {
       background: #fff;
       padding: 12px;
@@ -53,17 +57,20 @@
       justify-content: center;
       align-items: center;
     }
+
     img {
       width: 100%;
       height: auto;
       display: block;
       border-radius: 8px;
     }
+
     .actions-row {
       display: flex;
       gap: 12px;
       margin-top: 20px;
     }
+
     .btn {
       background: linear-gradient(135deg, hsl(20, 100%, 75%), hsl(343, 85%, 63%));
       border: none;
@@ -79,22 +86,26 @@
       display: inline-block;
       text-align: center;
     }
+
     .btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(245, 141, 158, 0.45);
     }
+
     .btn-secondary {
       background: transparent;
       border: 2px solid hsl(343, 85%, 63%);
       color: hsl(343, 40%, 25%);
       box-shadow: none;
     }
+
     .btn-secondary:hover {
       background: rgba(255, 200, 200, 0.15);
       transform: translateY(-2px);
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="tip">🌸 Nhấn giữ lâu vào dải ảnh bên dưới và chọn "Lưu hình ảnh" để tải về máy nhé! 🌸</div>
@@ -115,7 +126,7 @@
 
       if (dataUrl) {
         img.src = dataUrl;
-        
+
         // Native download button inside preview page as extra helper
         btnDownload.addEventListener('click', () => {
           const link = document.createElement('a');
@@ -130,4 +141,5 @@
     });
   </script>
 </body>
+
 </html>

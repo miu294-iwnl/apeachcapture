@@ -517,6 +517,13 @@ body {
   gap: 8px;
 }
 
+.capture-buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
 .btn-capture {
   background: linear-gradient(135deg, var(--peach-orange), var(--dark-pink));
   border: none;
@@ -574,6 +581,9 @@ body {
 /* Thick photo paper vertical strip container */
 .photo-strip {
   background: #ffffff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border-radius: 8px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -670,6 +680,31 @@ body {
   animation: slideInPhoto 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
+.captured-image.staging {
+  cursor: grab !important;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  pointer-events: auto !important;
+  z-index: 10 !important;
+}
+
+.captured-image.staging:active {
+  cursor: grabbing !important;
+}
+
+.captured-image.adjusted {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: filter 0.2s ease, outline 0.2s ease;
+}
+
+.captured-image.adjusted:hover {
+  filter: brightness(1.05);
+  outline: 2px dashed var(--primary-pink);
+  outline-offset: -2px;
+}
+
 @keyframes slideInPhoto {
   0% {
     transform: scale(0.8);
@@ -697,11 +732,56 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Footer layout rules for vertical narrow layouts */
+/* Hide Apeach photobooth text, right icon, and dashed border when custom background image is active */
+.photo-strip.custom-bg-active .strip-logo-text,
+.photo-strip.custom-bg-active .strip-footer-right {
+  display: none !important;
+}
+
+/* Custom background image active: hide default logo & dashed border, increase font sizes and indent signature/date inward */
+.photo-strip.custom-bg-active .strip-footer {
+  border-top: none !important;
+  justify-content: flex-start;
+}
+
+.photo-strip.custom-bg-active.layout-2x6-4 .strip-footer,
+.photo-strip.custom-bg-active.layout-2x6-3 .strip-footer {
+  padding: 0 8.5% !important;
+}
+
+.photo-strip.custom-bg-active.layout-4x6-6 .strip-footer {
+  padding: 0 7.2% !important;
+}
+
+.photo-strip.custom-bg-active.layout-4x6-portrait .strip-footer {
+  padding: 0 8.0% !important;
+}
+
+.photo-strip.custom-bg-active.layout-4x6-landscape .strip-footer,
+.photo-strip.custom-bg-active.layout-4x6-triple .strip-footer,
+.photo-strip.custom-bg-active.layout-4x6-3a .strip-footer,
+.photo-strip.custom-bg-active.layout-4x6-3b .strip-footer,
+.photo-strip.custom-bg-active.layout-4x6-4 .strip-footer,
+.photo-strip.custom-bg-active.layout-4x6-2a .strip-footer,
+.photo-strip.custom-bg-active.layout-4x6-2b .strip-footer {
+  padding: 0 6.5% !important;
+}
+
+.photo-strip.custom-bg-active .strip-dedication {
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+}
+
+.photo-strip.custom-bg-active .strip-date {
+  font-size: 0.60rem !important;
+  font-weight: 700 !important;
+}
+
+/* Footer layout rules for vertical narrow layouts (slot left margin: 6.3%) */
 .photo-strip.layout-2x6-4 .strip-footer,
 .photo-strip.layout-2x6-3 .strip-footer {
   height: 52px;
-  padding: 0 12px;
+  padding: 0 6.3%;
   bottom: 0px;
   left: 0px;
   right: 0px;
@@ -723,15 +803,24 @@ body {
   height: 34px;
 }
 
-/* Footer layout rules for 4x6 Portrait layouts */
-.photo-strip.layout-4x6-6 .strip-footer,
-.photo-strip.layout-4x6-portrait .strip-footer {
+/* Footer layout rules for 4x6 Grid 6 layout (slot left margin: 5.0%) */
+.photo-strip.layout-4x6-6 .strip-footer {
   height: 60px;
-  padding: 0 15px;
+  padding: 0 5.0%;
   bottom: 0px;
   left: 0px;
   right: 0px;
 }
+
+/* Footer layout rules for 4x6 Portrait layout (slot left margin: 6.0%) */
+.photo-strip.layout-4x6-portrait .strip-footer {
+  height: 60px;
+  padding: 0 6.0%;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+
 .photo-strip.layout-4x6-6 .strip-logo-text,
 .photo-strip.layout-4x6-portrait .strip-logo-text {
   font-size: 0.72rem;
@@ -749,7 +838,7 @@ body {
   height: 35px;
 }
 
-/* Footer layout rules for 4x6 Landscape layouts */
+/* Footer layout rules for 4x6 Landscape layouts (slot left margin: 4.0%) */
 .photo-strip.layout-4x6-landscape .strip-footer,
 .photo-strip.layout-4x6-triple .strip-footer,
 .photo-strip.layout-4x6-3a .strip-footer,
@@ -758,7 +847,7 @@ body {
 .photo-strip.layout-4x6-2a .strip-footer,
 .photo-strip.layout-4x6-2b .strip-footer {
   height: 40px;
-  padding: 0 14px;
+  padding: 0 4.0%;
   bottom: 0px;
   left: 0px;
   right: 0px;
@@ -1145,8 +1234,10 @@ body {
 
 .color-options {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .color-option-label {
@@ -1157,9 +1248,12 @@ body {
   font-weight: 600;
   color: var(--text-dark);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.color-option-label input[type="radio"] {
+.color-option-label input[type="radio"],
+.color-option-label input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
   width: 18px;
@@ -1168,13 +1262,16 @@ body {
   border-radius: 50%;
   outline: none;
   cursor: pointer;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   background-color: #fff;
   transition: all 0.2s ease;
 }
 
-.color-option-label input[type="radio"]:checked {
+.color-option-label input[type="radio"]:checked,
+.color-option-label input[type="checkbox"]:checked {
   background-color: var(--dark-pink);
   box-shadow: inset 0 0 0 3px #fff;
 }
@@ -1203,6 +1300,225 @@ body {
 #custom-color-picker::-webkit-color-swatch {
   border: none;
   border-radius: 4px;
+}
+
+/* Dedicated Background Image Upload Menu Section */
+.bg-image-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  border-top: 2px dashed rgba(245, 141, 158, 0.25);
+  padding-top: 10px;
+}
+
+.bg-image-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.btn-bg-info {
+  background: var(--primary-pink);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  box-shadow: 0 2px 6px rgba(245, 141, 158, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-bg-info:hover {
+  background: var(--dark-pink);
+  transform: scale(1.1);
+}
+
+.bg-image-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.btn-bg-upload {
+  background: linear-gradient(135deg, #fff0f3, #ffe3e8);
+  border: 1.5px dashed var(--primary-pink);
+  border-radius: var(--border-radius-medium);
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--dark-pink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-bg-upload:hover {
+  background: #ffe3e8;
+  border-color: var(--dark-pink);
+  transform: translateY(-1px);
+}
+
+.bg-image-preview-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid rgba(245, 141, 158, 0.4);
+  padding: 4px 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.bg-preview-thumb {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.btn-adjust-bg {
+  background: linear-gradient(135deg, var(--peach-orange), var(--dark-pink));
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(245, 141, 158, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-adjust-bg:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 4px 10px rgba(245, 141, 158, 0.4);
+}
+
+.bg-adjust-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  background: #fff0f3;
+  border: 1.5px dashed var(--primary-pink);
+  border-radius: var(--border-radius-medium);
+  box-sizing: border-box;
+}
+
+.bg-adjust-tip {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dark-pink);
+  margin: 0;
+  text-align: center;
+}
+
+.bg-adjust-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-confirm-bg-adjust {
+  background: linear-gradient(135deg, var(--primary-pink), var(--dark-pink));
+  border: none;
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(245, 141, 158, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-confirm-bg-adjust:hover {
+  transform: scale(1.03);
+}
+
+.btn-cancel-bg-adjust {
+  background: transparent;
+  border: 1.5px solid var(--primary-pink);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel-bg-adjust:hover {
+  background: rgba(255, 200, 200, 0.2);
+  border-color: var(--dark-pink);
+}
+
+.photo-strip {
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* Allow pointer events to pass through empty placeholders and footers to the background */
+.frame-placeholder,
+.strip-footer,
+.strip-footer * {
+  pointer-events: none !important;
+}
+
+.photo-strip.bg-adjusting {
+  box-shadow: 0 0 0 4px var(--primary-pink), 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.photo-strip.bg-adjusting:active {
+  cursor: grabbing !important;
+}
+
+.btn-remove-bg-image {
+  background: rgba(245, 141, 158, 0.2);
+  color: var(--dark-pink);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-remove-bg-image:hover {
+  background: var(--dark-pink);
+  color: #fff;
 }
 
 /* Mobile Menu Toggle Button */
@@ -1336,4 +1652,167 @@ body {
   color: var(--text-dark);
   opacity: 0.7;
   margin-top: 24px;
+}
+
+/* Modal Window Base */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.bg-info-modal {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalPopIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #fff0f3, #ffe3e8);
+  border-bottom: 1.5px dashed rgba(245, 141, 158, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--dark-pink);
+}
+
+.btn-close-modal {
+  background: rgba(245, 141, 158, 0.2);
+  color: var(--dark-pink);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+  background: var(--dark-pink);
+  color: #fff;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-dark);
+}
+
+.modal-intro {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  color: rgba(58, 37, 37, 0.8);
+}
+
+.specs-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.95rem;
+  color: var(--dark-pink);
+}
+
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.specs-table th, .specs-table td {
+  padding: 8px 12px;
+  border: 1px solid rgba(245, 141, 158, 0.25);
+}
+
+.specs-table th {
+  background: rgba(255, 227, 232, 0.5);
+  color: var(--dark-pink);
+  font-weight: 700;
+}
+
+.specs-table tr:nth-child(even) {
+  background: rgba(255, 240, 243, 0.3);
+}
+
+.badge-dim {
+  background: #ffe3e8;
+  color: var(--dark-pink);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.badge-slot {
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.modal-tips {
+  background: #fff8f9;
+  border: 1px dashed var(--primary-pink);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.modal-tips h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  color: var(--dark-pink);
+}
+
+.modal-tips ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.85rem;
+  line-height: 1.6;
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=1.1.4">
 </head>
+
 <body>
   <button id="btn-toggle-menu" class="btn-toggle-menu" aria-label="Toggle Layout Menu">☰</button>
 
@@ -67,7 +69,8 @@
             <!-- Error message if webcam is denied -->
             <div id="camera-error" class="camera-error hidden">
               <h3>Không tìm thấy Camera!</h3>
-              <p>Apeach không kết nối được camera của bạn. Hãy đảm bảo bạn đã cắm webcam và cho phép truy cập camera trên trình duyệt nhé!</p>
+              <p>Apeach không kết nối được camera của bạn. Hãy đảm bảo bạn đã cắm webcam và cho phép truy cập camera
+                trên trình duyệt nhé!</p>
             </div>
           </div>
         </div>
@@ -139,7 +142,7 @@
 
         <!-- Photo Strip Customizer Box -->
         <div class="strip-customizer">
-          <!-- Background Color Selector -->
+          <!-- 1. Background Color Selector -->
           <div class="bg-color-selector">
             <span class="selector-label">Màu nền dải ảnh:</span>
             <div class="color-options">
@@ -159,10 +162,60 @@
             </div>
           </div>
 
-          <!-- Signature / Dedication Input -->
+          <!-- 2. Dedicated Background Image Upload Section -->
+          <div class="bg-image-selector">
+            <div class="bg-image-header">
+              <label class="color-option-label">
+                <input type="radio" name="bg-color-choice" value="image" id="radio-bg-image">
+                <span class="selector-label">Ảnh nền tùy chỉnh 🌄</span>
+              </label>
+              <button type="button" id="btn-bg-info" class="btn-bg-info" title="Hướng dẫn thông số thiết kế ảnh nền">ⓘ</button>
+            </div>
+            
+            <!-- Custom Background Image Upload Controls -->
+            <input type="file" id="bg-upload-input" accept="image/*" class="hidden">
+            <div id="bg-image-controls" class="bg-image-controls">
+              <button type="button" id="btn-trigger-bg-upload" class="btn-bg-upload">
+                <span>Tải ảnh nền mới 📤</span>
+              </button>
+              <div id="bg-image-preview-badge" class="bg-image-preview-badge hidden">
+                <img id="bg-preview-img" src="" alt="Ảnh nền" class="bg-preview-thumb">
+                <button type="button" id="btn-adjust-bg" class="btn-adjust-bg" title="Căn chỉnh vị trí & thu phóng nền">
+                  <span>Căn chỉnh 🔍</span>
+                </button>
+                <button type="button" id="btn-remove-bg-image" class="btn-remove-bg-image" title="Xóa ảnh nền">✕</button>
+              </div>
+            </div>
+
+            <!-- Background Image Staging / Adjustment Mode -->
+            <div id="bg-adjust-container" class="bg-adjust-container hidden">
+              <p class="bg-adjust-tip">🌸 Kéo thả trên dải ảnh bên phải để di chuyển vị trí nền!</p>
+              <div class="zoom-control-wrapper">
+                <label for="bg-zoom-slider">Thu phóng nền: <span id="bg-zoom-value">100%</span></label>
+                <input type="range" id="bg-zoom-slider" min="0.5" max="3" step="0.05" value="1">
+              </div>
+              <div class="bg-adjust-actions">
+                <button type="button" id="btn-confirm-bg-adjust" class="btn-confirm-bg-adjust">
+                  <span>Xác nhận vị trí ✅</span>
+                </button>
+                <button type="button" id="btn-cancel-bg-adjust" class="btn-cancel-bg-adjust">
+                  <span>Hủy 🔄</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Signature / Dedication & Date Option Input -->
           <div class="dedication-selector">
-            <label for="input-dedication" class="selector-label">Chữ ký dòng cuối:</label>
-            <input type="text" id="input-dedication" value="Dành cho Maeve" placeholder="Nhập chữ ký của bạn..." maxlength="30">
+            <div class="date-toggle-wrapper">
+              <label class="color-option-label date-toggle-label">
+                <input type="checkbox" id="checkbox-show-date" checked>
+                <span class="selector-label">Hiển thị ngày chụp 📅</span>
+              </label>
+            </div>
+            <label for="input-dedication" class="selector-label" style="margin-top: 6px;">Chữ ký dòng cuối:</label>
+            <input type="text" id="input-dedication" value="Dành cho Maeve" placeholder="Nhập chữ ký của bạn..."
+              maxlength="30">
           </div>
         </div>
 
@@ -182,6 +235,129 @@
     </footer>
   </div>
 
+  <!-- Modal Hướng Dẫn Thông Số Thiết Kế Ảnh Nền -->
+  <div id="bg-info-modal-backdrop" class="modal-backdrop hidden">
+    <div class="bg-info-modal">
+      <div class="modal-header">
+        <h3>🎨 Hướng Dẫn Kích Thước & Thiết Kế Ảnh Nền</h3>
+        <button id="btn-close-bg-info" class="btn-close-modal" aria-label="Đóng">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-intro">
+          Để thiết kế ảnh nền (Photoshop/Canva) vừa vặn không bị đè chữ hay che mất khung ảnh chụp, bạn hãy tham khảo các thông số lề và kích thước pixel gốc dưới đây:
+        </p>
+
+        <div class="specs-section">
+          <h4>1. Dải Dọc 2x6" (Khung 3 & 4 Ô Ảnh)</h4>
+          <table class="specs-table">
+            <thead>
+              <tr>
+                <th>Kiểu Dải Ảnh</th>
+                <th>Canvas Dải Ảnh</th>
+                <th>Kích Thước Ô Ảnh Bên Trong</th>
+                <th>Tỷ Lệ Ô Ảnh</th>
+                <th>Lề Trái/Phải Đến Viền</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>2x6" Kiểu A (3 ảnh)</strong></td>
+                <td><span class="badge-dim">1080 x 2700 px</span></td>
+                <td><span class="badge-slot">944 x 702 px</span></td>
+                <td><code>4 : 3</code> (Ngang)</td>
+                <td><strong>68 px</strong> (6.3%)</td>
+              </tr>
+              <tr>
+                <td><strong>2x6" Kiểu B (4 ảnh - Mặc định)</strong></td>
+                <td><span class="badge-dim">1080 x 3348 px</span></td>
+                <td><span class="badge-slot">944 x 708 px</span></td>
+                <td><code>4 : 3</code> (Ngang)</td>
+                <td><strong>68 px</strong> (6.3%)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="specs-section">
+          <h4>2. Dải Thẻ 4x6" (Dọc & Ngang 11 Bố Cục)</h4>
+          <table class="specs-table">
+            <thead>
+              <tr>
+                <th>Kiểu Dải Ảnh</th>
+                <th>Canvas Dải Ảnh</th>
+                <th>Kích Thước Ô Ảnh Bên Trong</th>
+                <th>Tỷ Lệ Ô Ảnh</th>
+                <th>Lề Trái/Phải Đến Viền</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>4x6" Kiểu A (6 ảnh lưới)</strong></td>
+                <td><span class="badge-dim">1200 x 1800 px</span></td>
+                <td><span class="badge-slot">510 x 450 px</span></td>
+                <td><code>17 : 15</code></td>
+                <td><strong>60 px</strong> (5.0%)</td>
+              </tr>
+              <tr>
+                <td><strong>4x6" Kiểu B (1 ảnh chân dung)</strong></td>
+                <td><span class="badge-dim">1200 x 1800 px</span></td>
+                <td><span class="badge-slot">1056 x 1404 px</span></td>
+                <td><code>3 : 4</code> (Dọc)</td>
+                <td><strong>72 px</strong> (6.0%)</td>
+              </tr>
+              <tr>
+                <td><strong>4x6" Kiểu C (1 ảnh phong cảnh)</strong></td>
+                <td><span class="badge-dim">1800 x 1200 px</span></td>
+                <td><span class="badge-slot">1656 x 912 px</span></td>
+                <td><code>16 : 9</code> (Ngang)</td>
+                <td><strong>72 px</strong> (4.0%)</td>
+              </tr>
+              <tr>
+                <td><strong>4x6" Kiểu D (3 ảnh đứng ngang)</strong></td>
+                <td><span class="badge-dim">1800 x 1200 px</span></td>
+                <td><span class="badge-slot">527 x 912 px</span></td>
+                <td><code>9 : 16</code> (Dọc)</td>
+                <td><strong>72 px</strong> (4.0%)</td>
+              </tr>
+              <tr>
+                <td><strong>4x6" Kiểu E & F (3 ảnh nghệ thuật)</strong></td>
+                <td><span class="badge-dim">1800 x 1200 px</span></td>
+                <td><span class="badge-slot">801 x 438 px</span></td>
+                <td><code>16 : 9</code> (Ngang)</td>
+                <td><strong>72 px</strong> (4.0%)</td>
+              </tr>
+              <tr>
+                <td><strong>4x6" Kiểu G (1 lớn + 3 nhỏ)</strong></td>
+                <td><span class="badge-dim">1800 x 1200 px</span></td>
+                <td>Lớn: <span class="badge-slot">1093 x 438 px</span><br>Nhỏ: <span class="badge-slot">527 x 438 px</span></td>
+                <td><code>5 : 2</code> / <code>6 : 5</code></td>
+                <td><strong>72 px</strong> (4.0%)</td>
+              </tr>
+              <tr>
+                <td><strong>4x6" Kiểu H & I (2 ảnh nghệ thuật)</strong></td>
+                <td><span class="badge-dim">1800 x 1200 px</span></td>
+                <td><span class="badge-slot">801 x 438 px</span></td>
+                <td><code>16 : 9</code> (Ngang)</td>
+                <td><strong>72 px</strong> (4.0%)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-tips">
+          <h4>💡 Mẹo thiết kế background đẹp:</h4>
+          <ul>
+            <li><strong>Chế độ hiển thị:</strong> Ảnh nền tự động phủ vừa dải ảnh theo dạng <code>cover</code> (căn giữa).</li>
+            <li><strong>Bố trí hoa văn:</strong> Đặt họa tiết ở dải lề ngoài cùng (khoảng 68px từ viền) hoặc khoảng trống chân trang.</li>
+            <li><strong>Bo góc ô ảnh:</strong> Khung chứa ảnh chụp được bo tròn góc <strong>20px</strong>.</li>
+            <li><strong>Định dạng file:</strong> Xuất file <strong>PNG / JPG</strong> chất lượng cao (hỗ trợ độ phân giải cao).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js?v=1.1.4"></script>
 </body>
+
 </html>

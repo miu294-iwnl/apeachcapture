@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const cameraError = document.getElementById('camera-error');
   const cameraPrompt = document.getElementById('camera-prompt');
   const btnGrantCamera = document.getElementById('btn-grant-camera');
-  
+
   // Dynamic DOM References
   let frameSlots = [];
   const layoutMenu = document.getElementById('layout-menu');
   const stripFrames = document.getElementById('strip-frames');
-  
+
   const btnToggleMenu = document.getElementById('btn-toggle-menu');
   const menuBackdrop = document.getElementById('menu-backdrop');
   const layoutPanel = document.querySelector('.layout-panel');
@@ -51,14 +51,51 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCancelStaging = document.getElementById('btn-cancel-staging');
   const photoStrip = document.getElementById('photo-strip');
 
-  // Background Color Selectors
+  // Background Color & Image Selectors & State
   const bgRadioChoices = document.querySelectorAll('input[name="bg-color-choice"]');
   const customColorPicker = document.getElementById('custom-color-picker');
   const radioCustomColor = document.getElementById('radio-custom-color');
+  const radioBgImage = document.getElementById('radio-bg-image');
+  const bgUploadInput = document.getElementById('bg-upload-input');
+  const bgImageControls = document.getElementById('bg-image-controls');
+  const btnTriggerBgUpload = document.getElementById('btn-trigger-bg-upload');
+  const bgImagePreviewBadge = document.getElementById('bg-image-preview-badge');
+  const bgPreviewImg = document.getElementById('bg-preview-img');
+  const btnRemoveBgImage = document.getElementById('btn-remove-bg-image');
+  const btnAdjustBg = document.getElementById('btn-adjust-bg');
+  const bgAdjustContainer = document.getElementById('bg-adjust-container');
+  const bgZoomSlider = document.getElementById('bg-zoom-slider');
+  const bgZoomValue = document.getElementById('bg-zoom-value');
+  const btnConfirmBgAdjust = document.getElementById('btn-confirm-bg-adjust');
 
-  // Signature Selectors
+  let currentBgMode = 'color'; // 'color' or 'image'
+  let currentBgColor = '#ffffff';
+  let currentBgImage = null; // DataURL of uploaded background image
+
+  let bgStaging = {
+    x: 0,
+    y: 0,
+    scale: 1.0,
+    imgWidth: 0,
+    imgHeight: 0,
+    baseWidth: 0,
+    baseHeight: 0,
+    initialX: 0,
+    initialY: 0,
+    stripW: 0,
+    stripH: 0
+  };
+  let isAdjustingBg = false;
+  let isBgDragging = false;
+  let bgDragStartX = 0;
+  let bgDragStartY = 0;
+
+  // Signature & Date Stamp Selectors
+  const checkboxShowDate = document.getElementById('checkbox-show-date');
   const inputDedication = document.getElementById('input-dedication');
   const stripDedicationEl = document.querySelector('.strip-dedication');
+  const stripDateEl = document.querySelector('.strip-date');
+  let showDateStamp = true;
 
   // Photobooth layouts configuration definition
   const LAYOUTS = {
@@ -224,7 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let compiledDataUrl = null;
   let currentSlotIndex = 0;
   let stagingPhoto = null; // Will temporarily store active photo before confirmation
-  let currentBgColor = '#ffffff'; // Stored active background color
   let currentDedication = 'Dành cho Maeve'; // Stored active signature text
   let currentLayoutKey = '2x6-b'; // Default (2x6" Kiểu B)
 
@@ -530,6 +566,11 @@ document.addEventListener('DOMContentLoaded', () => {
       normalControls.classList.add('hidden');
       stagingControls.classList.remove('hidden');
 
+      // Always turn off background adjustment mode when staging a slot photo
+      isAdjustingBg = false;
+      photoStrip.classList.remove('bg-adjusting');
+      if (bgAdjustContainer) bgAdjustContainer.classList.add('hidden');
+
       btnCapture.disabled = true;
       btnUploadPhoto.disabled = true;
       btnReset.disabled = false;
@@ -642,6 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!target.classList.contains('staging')) return;
 
     isDragging = true;
+    e.stopPropagation();
 
     // Pointer Events naturally have clientX and clientY for both mouse and touch!
     startDragX = e.clientX - stagingPhoto.x;
@@ -737,6 +779,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Function to enter re-edit mode for a confirmed photo slot
+  function reEditPhotoSlot(slotIndex) {
+    if (!photos[slotIndex]) return;
+
+    // If currently staging another photo slot, save its config first
+    if (stagingPhoto && currentSlotIndex !== slotIndex) {
+      photos[currentSlotIndex] = { ...stagingPhoto };
+      const prevImg = frameSlots[currentSlotIndex].querySelector('.captured-image');
+      if (prevImg) {
+        prevImg.classList.remove('staging');
+        prevImg.classList.add('adjusted');
+        prevImg.title = "Bấm để chỉnh sửa lại vị trí & thu phóng 🔍";
+      }
+    }
+
+    currentSlotIndex = slotIndex;
+    stagingPhoto = { ...photos[slotIndex] };
+
+    const slot = frameSlots[slotIndex];
+    const imgEl = slot.querySelector('.captured-image');
+    if (imgEl) {
+      imgEl.classList.remove('adjusted');
+      imgEl.classList.add('staging');
+      imgEl.style.cursor = 'grab';
+      imgEl.title = "Kéo thả để chỉnh vị trí 🌸";
+    }
+
+    // Open staging controls with photo's current scale
+    zoomSlider.value = stagingPhoto.scale;
+    zoomValue.textContent = `${Math.round(stagingPhoto.scale * 100)}%`;
+
+    normalControls.classList.add('hidden');
+    stagingControls.classList.remove('hidden');
+
+    updateActiveSlotHighlight();
+  }
+
+  // Click listener on stripFrames to re-edit confirmed photo slots
+  stripFrames.addEventListener('click', (e) => {
+    const imgEl = e.target.closest('.captured-image.adjusted');
+    if (!imgEl) return;
+    const slotEl = imgEl.closest('.frame-slot');
+    if (!slotEl) return;
+    const slotIndex = parseInt(slotEl.dataset.index, 10);
+    if (!isNaN(slotIndex)) {
+      reEditPhotoSlot(slotIndex);
+    }
+  });
+
   // Confirm photo logic
   btnConfirmPhoto.addEventListener('click', () => {
     if (!stagingPhoto) return;
@@ -749,14 +840,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (imgEl) {
       imgEl.classList.remove('staging');
       imgEl.classList.add('adjusted');
-      imgEl.style.cursor = 'default';
+      imgEl.title = "Bấm để chỉnh sửa lại vị trí & thu phóng 🔍";
     }
 
     stagingPhoto = null;
-    currentSlotIndex++;
 
     const numPhotos = LAYOUTS[currentLayoutKey].numPhotos;
-    if (currentSlotIndex === numPhotos) {
+
+    // Find next un-filled slot index if any
+    let nextSlot = -1;
+    for (let i = 0; i < numPhotos; i++) {
+      if (!photos[i]) {
+        nextSlot = i;
+        break;
+      }
+    }
+
+    if (nextSlot !== -1) {
+      currentSlotIndex = nextSlot;
+    }
+
+    if (photos.filter(Boolean).length === numPhotos) {
       // Photo strip is completed!
       compilePhotoStrip();
       stagingControls.classList.add('hidden');
@@ -809,15 +913,33 @@ document.addEventListener('DOMContentLoaded', () => {
     compiledDataUrl = null;
     btnDownload.disabled = true;
 
-    // Reset background color selections to white
+    // Reset background color & image selections to default white
+    currentBgMode = 'color';
     currentBgColor = '#ffffff';
+    currentBgImage = null;
+    bgStaging = {
+      x: 0,
+      y: 0,
+      scale: 1.0,
+      imgWidth: 0,
+      imgHeight: 0,
+      baseWidth: 0,
+      baseHeight: 0,
+      initialX: 0,
+      initialY: 0,
+      stripW: 0,
+      stripH: 0
+    };
+    isAdjustingBg = false;
+    if (bgAdjustContainer) bgAdjustContainer.classList.add('hidden');
+    photoStrip.classList.remove('bg-adjusting');
+    photoStrip.style.backgroundImage = 'none';
     photoStrip.style.backgroundColor = '#ffffff';
+    bgImageControls.classList.add('hidden');
+    bgImagePreviewBadge.classList.add('hidden');
+    bgPreviewImg.src = '';
     bgRadioChoices.forEach(radio => {
-      if (radio.value === '#ffffff') {
-        radio.checked = true;
-      } else {
-        radio.checked = false;
-      }
+      radio.checked = (radio.value === '#ffffff');
     });
     customColorPicker.value = '#ffe0e5';
 
@@ -854,14 +976,17 @@ document.addEventListener('DOMContentLoaded', () => {
     stripCanvas.height = layout.canvasHeight;
     const ctx = stripCanvas.getContext('2d');
 
-    // 1. Draw solid background color matching web
-    ctx.fillStyle = currentBgColor;
-    ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
-
-    // 2. Draw subtle border around the canvas
-    ctx.lineWidth = Math.max(4, Math.round(stripCanvas.width * 0.007));
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.strokeRect(ctx.lineWidth / 2, ctx.lineWidth / 2, stripCanvas.width - ctx.lineWidth, stripCanvas.height - ctx.lineWidth);
+    // Prepare custom background image promise if active
+    const bgImagePromise = new Promise((resolve) => {
+      if (currentBgMode === 'image' && currentBgImage) {
+        const img = new Image();
+        img.onload = () => resolve({ type: 'bg_image', img });
+        img.onerror = () => resolve({ type: 'bg_image', img: null });
+        img.src = currentBgImage;
+      } else {
+        resolve({ type: 'bg_image', img: null });
+      }
+    });
 
     // Load all photos as promises
     const loadPromises = photos.map((photoObj, i) => {
@@ -882,11 +1007,64 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Wait for all images to be loaded
-    Promise.all([...loadPromises, footerImgPromise])
+    Promise.all([...loadPromises, bgImagePromise, footerImgPromise])
       .then(results => {
         const photosToDraw = results.filter(item => item.type === 'photo');
+        const bgItem = results.find(item => item.type === 'bg_image');
         const footerLogoItem = results.find(item => item.type === 'footer_logo');
+        const bgImg = bgItem ? bgItem.img : null;
         const footerLogoImg = footerLogoItem ? footerLogoItem.img : null;
+
+        // 1. Draw background (paint base canvas solid white #ffffff first, then draw custom background image on top if set)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
+
+        if (bgImg && bgStaging.baseWidth > 0 && bgStaging.stripW > 0) {
+          const scaleRatio = stripCanvas.width / bgStaging.stripW;
+          const centerX = stripCanvas.width / 2;
+          const centerY = stripCanvas.height / 2;
+
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.scale(bgStaging.scale, bgStaging.scale);
+
+          const finalRelX = (bgStaging.initialX - bgStaging.stripW / 2) * scaleRatio;
+          const finalRelY = (bgStaging.initialY - bgStaging.stripH / 2) * scaleRatio;
+          const finalBaseW = bgStaging.baseWidth * scaleRatio;
+          const finalBaseH = bgStaging.baseHeight * scaleRatio;
+
+          const finalDragX = bgStaging.x * scaleRatio;
+          const finalDragY = bgStaging.y * scaleRatio;
+
+          ctx.translate(finalDragX / bgStaging.scale, finalDragY / bgStaging.scale);
+          ctx.drawImage(bgImg, finalRelX, finalRelY, finalBaseW, finalBaseH);
+          ctx.restore();
+        } else if (bgImg) {
+          const canvasAspect = stripCanvas.width / stripCanvas.height;
+          const imgAspect = bgImg.width / bgImg.height;
+          let drawW, drawH, drawX, drawY;
+
+          if (imgAspect > canvasAspect) {
+            drawH = stripCanvas.height;
+            drawW = stripCanvas.height * imgAspect;
+            drawX = (stripCanvas.width - drawW) / 2;
+            drawY = 0;
+          } else {
+            drawW = stripCanvas.width;
+            drawH = stripCanvas.width / imgAspect;
+            drawX = 0;
+            drawY = (stripCanvas.height - drawH) / 2;
+          }
+          ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
+        } else {
+          ctx.fillStyle = currentBgColor;
+          ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
+        }
+
+        // 2. Draw subtle border around the canvas
+        ctx.lineWidth = Math.max(4, Math.round(stripCanvas.width * 0.007));
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.strokeRect(ctx.lineWidth / 2, ctx.lineWidth / 2, stripCanvas.width - ctx.lineWidth, stripCanvas.height - ctx.lineWidth);
 
         photosToDraw.forEach(item => {
           const slot = layout.slots[item.index];
@@ -968,29 +1146,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const footerY = layout.footerY;
     const is2x6 = currentLayoutKey.startsWith('2x6');
     const isPortrait = currentLayoutKey === '4x6-6' || currentLayoutKey === '4x6-portrait';
+    const isCustomBg = (currentBgMode === 'image' && currentBgImage !== null);
 
-    // 1. Margins
-    const marginLeft = is2x6 ? 68 : (isPortrait ? 60 : 72);
-    const marginRight = canvas.width - marginLeft;
+    // 1. Margins dynamically derived from the layout's first photo slot left coordinate
+    // Indent slightly inward when using custom background image
+    const firstSlot = layout.slots[0];
+    const customIndent = isCustomBg ? (canvas.width * 0.022) : 0;
+    const marginLeft = (firstSlot.left / 100) * canvas.width + customIndent;
+    const marginRight = canvas.width - ((firstSlot.left / 100) * canvas.width);
 
-    // 2. Draw dashed divider line
-    ctx.strokeStyle = 'rgba(245, 141, 158, 0.25)';
-    ctx.lineWidth = Math.max(3, Math.round(canvas.width * 0.004));
-    const dashLen = Math.round(canvas.width * 0.013);
-    ctx.setLineDash([dashLen, dashLen]);
-    ctx.beginPath();
-    ctx.moveTo(marginLeft, footerY);
-    ctx.lineTo(marginRight, footerY);
-    ctx.stroke();
-    ctx.setLineDash([]); // Reset line dash
+    // 2. Draw dashed divider line (only when NOT using custom background image)
+    if (!isCustomBg) {
+      ctx.strokeStyle = 'rgba(245, 141, 158, 0.25)';
+      ctx.lineWidth = Math.max(3, Math.round(canvas.width * 0.004));
+      const dashLen = Math.round(canvas.width * 0.013);
+      ctx.setLineDash([dashLen, dashLen]);
+      ctx.beginPath();
+      ctx.moveTo(marginLeft, footerY);
+      ctx.lineTo(marginRight, footerY);
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset line dash
+    }
 
     // 3. Set layout text scaling sizes
     let titleSize, dateSize, dedicationSize, logoH, titleOffset, dateOffset, dedicationOffset, logoOffset;
 
     if (is2x6) {
       titleSize = 58;
-      dateSize = 36;
-      dedicationSize = 32;
+      dateSize = isCustomBg ? 44 : 36;
+      dedicationSize = isCustomBg ? 48 : 32;
       logoH = 180;
       titleOffset = 79;
       dateOffset = 130;
@@ -998,8 +1182,8 @@ document.addEventListener('DOMContentLoaded', () => {
       logoOffset = 32;
     } else if (isPortrait) {
       titleSize = 50;
-      dateSize = 32;
-      dedicationSize = 28;
+      dateSize = isCustomBg ? 38 : 32;
+      dedicationSize = isCustomBg ? 44 : 28;
       logoH = 150;
       titleOffset = 75;
       dateOffset = 122;
@@ -1007,8 +1191,8 @@ document.addEventListener('DOMContentLoaded', () => {
       logoOffset = 30;
     } else { // Landscape
       titleSize = 44;
-      dateSize = 28;
-      dedicationSize = 24;
+      dateSize = isCustomBg ? 34 : 28;
+      dedicationSize = isCustomBg ? 40 : 24;
       logoH = 120;
       titleOffset = 62;
       dateOffset = 100;
@@ -1016,27 +1200,47 @@ document.addEventListener('DOMContentLoaded', () => {
       logoOffset = 22;
     }
 
-    // 4. Draw texts
-    // Draw "Apeach Photobooth" logo text
-    ctx.fillStyle = '#ffc8c8';
-    ctx.font = `700 ${titleSize}px "Fredoka", sans-serif`;
-    ctx.textAlign = 'left';
-    ctx.fillText('Apeach Photobooth', marginLeft, footerY + titleOffset);
+    // Adjust vertical offsets when title logo is omitted on custom background or when date is hidden
+    if (isCustomBg) {
+      if (is2x6) {
+        dateOffset = 70;
+        dedicationOffset = showDateStamp ? 122 : 80;
+      } else if (isPortrait) {
+        dateOffset = 60;
+        dedicationOffset = showDateStamp ? 108 : 70;
+      } else {
+        dateOffset = 50;
+        dedicationOffset = showDateStamp ? 92 : 60;
+      }
+    } else if (!showDateStamp) {
+      dedicationOffset = dateOffset;
+    }
 
-    // Draw Date stamp
-    ctx.fillStyle = 'rgba(58, 37, 37, 0.6)';
-    ctx.font = `600 ${dateSize}px "Fredoka", sans-serif`;
-    ctx.textAlign = 'left';
-    ctx.fillText(getCurrentDateString(), marginLeft, footerY + dateOffset);
+    // 4. Draw texts
+    // Draw "Apeach Photobooth" logo text (only when NOT using custom background image)
+    if (!isCustomBg) {
+      ctx.fillStyle = '#ffc8c8';
+      ctx.font = `700 ${titleSize}px "Fredoka", sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText('Apeach Photobooth', marginLeft, footerY + titleOffset);
+    }
+
+    // Draw Date stamp (only when showDateStamp is enabled)
+    if (showDateStamp) {
+      ctx.fillStyle = 'rgba(58, 37, 37, 0.6)';
+      ctx.font = isCustomBg ? `700 ${dateSize}px "Fredoka", sans-serif` : `600 ${dateSize}px "Fredoka", sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText(getCurrentDateString(), marginLeft, footerY + dateOffset);
+    }
 
     // Draw dedication text (signature)
     ctx.fillStyle = 'rgba(58, 37, 37, 0.45)';
-    ctx.font = `600 ${dedicationSize}px "Fredoka", sans-serif`;
+    ctx.font = isCustomBg ? `700 ${dedicationSize}px "Fredoka", sans-serif` : `600 ${dedicationSize}px "Fredoka", sans-serif`;
     ctx.textAlign = 'left';
     ctx.fillText(currentDedication, marginLeft, footerY + dedicationOffset);
 
-    // 5. Draw footer logo image on the right next to the texts
-    if (footerLogoImg) {
+    // 5. Draw footer logo image on the right next to the texts (only when NOT using custom background image)
+    if (!isCustomBg && footerLogoImg) {
       const logoW = logoH * (footerLogoImg.width / footerLogoImg.height);
       const logoX = marginRight - logoW; // Align to the right margin
       const logoY = footerY + logoOffset;
@@ -1068,37 +1272,312 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Background color selection event handlers
-  function updateBackgroundColor(color) {
-    currentBgColor = color;
-    photoStrip.style.backgroundColor = color;
+  // Initialize background staging configuration from loaded image
+  function initBgStaging(dataUrl) {
+    const img = new Image();
+    img.onload = () => {
+      const stripW = photoStrip.clientWidth || 220;
+      const stripH = photoStrip.clientHeight || 682;
+      const rS = stripW / stripH;
+      const rI = img.width / img.height;
 
-    // Auto re-compile canvas if the photo strip is already complete
-    const numPhotos = LAYOUTS[currentLayoutKey].numPhotos;
-    if (photos.length === numPhotos) {
-      compilePhotoStrip();
+      let baseWidth, baseHeight;
+      if (rI > rS) {
+        baseHeight = stripH;
+        baseWidth = stripH * rI;
+      } else {
+        baseWidth = stripW;
+        baseHeight = stripW / rI;
+      }
+
+      const initialX = (stripW - baseWidth) / 2;
+      const initialY = (stripH - baseHeight) / 2;
+
+      bgStaging = {
+        x: 0,
+        y: 0,
+        scale: 1.0,
+        imgWidth: img.width,
+        imgHeight: img.height,
+        baseWidth: baseWidth,
+        baseHeight: baseHeight,
+        initialX: initialX,
+        initialY: initialY,
+        stripW: stripW,
+        stripH: stripH
+      };
+
+      // Auto open background adjustment mode when uploading new background image
+      isAdjustingBg = true;
+      bgStagingSnapshot = { ...bgStaging };
+      if (bgAdjustContainer) bgAdjustContainer.classList.remove('hidden');
+      photoStrip.classList.add('bg-adjusting');
+      if (bgZoomSlider) {
+        bgZoomSlider.value = bgStaging.scale;
+        if (bgZoomValue) bgZoomValue.textContent = `${Math.round(bgStaging.scale * 100)}%`;
+      }
+
+      updateBackgroundDisplay();
+    };
+    img.src = dataUrl;
+  }
+
+  let bgRafId = null;
+
+  // Background selection & display event handlers (solid colors & custom image)
+  function updateBackgroundDisplay(skipCanvas = false) {
+    if (currentBgMode === 'image' && currentBgImage) {
+      photoStrip.style.backgroundImage = `url("${currentBgImage}")`;
+      photoStrip.style.backgroundColor = '#ffffff'; // Set base color behind custom image to white #ffffff
+      photoStrip.classList.add('custom-bg-active');
+
+      const stripW = photoStrip.clientWidth || 220;
+      const stripH = photoStrip.clientHeight || 682;
+
+      if (bgStaging.baseWidth > 0 && bgStaging.stripW > 0) {
+        const ratioX = stripW / bgStaging.stripW;
+        const ratioY = stripH / bgStaging.stripH;
+
+        const scaledW = bgStaging.baseWidth * bgStaging.scale * ratioX;
+        const scaledH = bgStaging.baseHeight * bgStaging.scale * ratioY;
+
+        const posX = (bgStaging.initialX + bgStaging.x) * ratioX;
+        const posY = (bgStaging.initialY + bgStaging.y) * ratioY;
+
+        photoStrip.style.backgroundSize = `${scaledW}px ${scaledH}px`;
+        photoStrip.style.backgroundPosition = `${posX}px ${posY}px`;
+        photoStrip.style.backgroundRepeat = 'no-repeat';
+      } else {
+        photoStrip.style.backgroundSize = 'cover';
+        photoStrip.style.backgroundPosition = 'center';
+      }
+    } else {
+      photoStrip.style.backgroundImage = 'none';
+      photoStrip.style.backgroundColor = currentBgColor;
+      photoStrip.classList.remove('custom-bg-active');
+      photoStrip.classList.remove('bg-adjusting');
+      isAdjustingBg = false;
+      if (bgAdjustContainer) bgAdjustContainer.classList.add('hidden');
     }
+
+    // Auto re-compile canvas ONLY if not actively dragging to ensure 60fps smooth mobile motion
+    if (!skipCanvas) {
+      const numPhotos = LAYOUTS[currentLayoutKey].numPhotos;
+      if (photos.length === numPhotos) {
+        compilePhotoStrip();
+      }
+    }
+  }
+
+  const btnCancelBgAdjust = document.getElementById('btn-cancel-bg-adjust');
+  let bgStagingSnapshot = null;
+
+  // Pointer drag event listeners on photoStrip for background adjustment
+  photoStrip.addEventListener('pointerdown', (e) => {
+    if (!isAdjustingBg || currentBgMode !== 'image' || !currentBgImage) return;
+
+    // Do NOT drag background if pointer is directly on an active slot photo
+    if (e.target && e.target.classList.contains('staging')) return;
+
+    isBgDragging = true;
+    bgDragStartX = e.clientX - bgStaging.x;
+    bgDragStartY = e.clientY - bgStaging.y;
+    try {
+      photoStrip.setPointerCapture(e.pointerId);
+    } catch (err) { }
+    e.preventDefault();
+  });
+
+  photoStrip.addEventListener('pointermove', (e) => {
+    if (!isBgDragging || !isAdjustingBg) return;
+    bgStaging.x = e.clientX - bgDragStartX;
+    bgStaging.y = e.clientY - bgDragStartY;
+
+    if (!bgRafId) {
+      bgRafId = requestAnimationFrame(() => {
+        updateBackgroundDisplay(true); // Skip heavy canvas compile during active drag frame
+        bgRafId = null;
+      });
+    }
+    e.preventDefault();
+  });
+
+  function endBgDrag(e) {
+    if (isBgDragging) {
+      if (e) {
+        try {
+          photoStrip.releasePointerCapture(e.pointerId);
+        } catch (err) { }
+      }
+      isBgDragging = false;
+      if (bgRafId) {
+        cancelAnimationFrame(bgRafId);
+        bgRafId = null;
+      }
+      // Re-compile canvas once when drag releases
+      updateBackgroundDisplay(false);
+    }
+  }
+
+  photoStrip.addEventListener('pointerup', endBgDrag);
+  photoStrip.addEventListener('pointercancel', endBgDrag);
+
+  // Background Zoom Slider Listener
+  if (bgZoomSlider) {
+    bgZoomSlider.addEventListener('input', () => {
+      const val = parseFloat(bgZoomSlider.value);
+      bgStaging.scale = val;
+      if (bgZoomValue) bgZoomValue.textContent = `${Math.round(val * 100)}%`;
+      updateBackgroundDisplay();
+    });
+  }
+
+  // Background Adjustment Control Buttons
+  if (btnAdjustBg) {
+    btnAdjustBg.addEventListener('click', () => {
+      // Automatically confirm active photo slot staging first if present
+      if (stagingPhoto !== null && btnConfirmPhoto) {
+        btnConfirmPhoto.click();
+      }
+      isAdjustingBg = true;
+      bgStagingSnapshot = { ...bgStaging }; // Save snapshot for canceling!
+      if (bgAdjustContainer) bgAdjustContainer.classList.remove('hidden');
+      photoStrip.classList.add('bg-adjusting');
+      if (bgZoomSlider) {
+        bgZoomSlider.value = bgStaging.scale;
+        if (bgZoomValue) bgZoomValue.textContent = `${Math.round(bgStaging.scale * 100)}%`;
+      }
+    });
+  }
+
+  if (btnConfirmBgAdjust) {
+    btnConfirmBgAdjust.addEventListener('click', () => {
+      isAdjustingBg = false;
+      if (bgAdjustContainer) bgAdjustContainer.classList.add('hidden');
+      photoStrip.classList.remove('bg-adjusting');
+      const numPhotos = LAYOUTS[currentLayoutKey].numPhotos;
+      if (photos.length === numPhotos) {
+        compilePhotoStrip();
+      }
+    });
+  }
+
+  if (btnCancelBgAdjust) {
+    btnCancelBgAdjust.addEventListener('click', () => {
+      if (bgStagingSnapshot) {
+        bgStaging = { ...bgStagingSnapshot }; // Revert to snapshot!
+      }
+      isAdjustingBg = false;
+      if (bgAdjustContainer) bgAdjustContainer.classList.add('hidden');
+      photoStrip.classList.remove('bg-adjusting');
+      updateBackgroundDisplay(false);
+    });
   }
 
   bgRadioChoices.forEach(radio => {
     radio.addEventListener('change', (e) => {
-      if (e.target.value === 'custom') {
-        updateBackgroundColor(customColorPicker.value);
+      const val = e.target.value;
+      if (val === 'image') {
+        currentBgMode = 'image';
+        bgImageControls.classList.remove('hidden');
+        if (!currentBgImage) {
+          bgUploadInput.click();
+        } else {
+          updateBackgroundDisplay();
+        }
       } else {
-        updateBackgroundColor(e.target.value);
+        currentBgMode = 'color';
+        bgImageControls.classList.add('hidden');
+        if (val === 'custom') {
+          currentBgColor = customColorPicker.value;
+        } else {
+          currentBgColor = val;
+        }
+        updateBackgroundDisplay();
       }
     });
   });
 
+  if (btnTriggerBgUpload) {
+    btnTriggerBgUpload.addEventListener('click', () => {
+      bgUploadInput.click();
+    });
+  }
+
+  if (bgUploadInput) {
+    bgUploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        currentBgImage = event.target.result;
+        currentBgMode = 'image';
+        if (radioBgImage) radioBgImage.checked = true;
+
+        if (bgPreviewImg) bgPreviewImg.src = currentBgImage;
+        if (bgImagePreviewBadge) bgImagePreviewBadge.classList.remove('hidden');
+        if (bgImageControls) bgImageControls.classList.remove('hidden');
+
+        initBgStaging(currentBgImage);
+      };
+      reader.readAsDataURL(file);
+      bgUploadInput.value = '';
+    });
+  }
+
+  if (btnRemoveBgImage) {
+    btnRemoveBgImage.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentBgImage = null;
+      if (bgPreviewImg) bgPreviewImg.src = '';
+      if (bgImagePreviewBadge) bgImagePreviewBadge.classList.add('hidden');
+
+      // Revert to default white color
+      currentBgMode = 'color';
+      currentBgColor = '#ffffff';
+      bgRadioChoices.forEach(radio => {
+        radio.checked = (radio.value === '#ffffff');
+      });
+      if (bgImageControls) bgImageControls.classList.add('hidden');
+      updateBackgroundDisplay();
+    });
+  }
+
   customColorPicker.addEventListener('input', () => {
+    currentBgMode = 'color';
     radioCustomColor.checked = true;
-    updateBackgroundColor(customColorPicker.value);
+    currentBgColor = customColorPicker.value;
+    bgImageControls.classList.add('hidden');
+    updateBackgroundDisplay();
   });
 
   customColorPicker.addEventListener('change', () => {
+    currentBgMode = 'color';
     radioCustomColor.checked = true;
-    updateBackgroundColor(customColorPicker.value);
+    currentBgColor = customColorPicker.value;
+    bgImageControls.classList.add('hidden');
+    updateBackgroundDisplay();
   });
+
+  // Date stamp toggle checkbox event handler
+  if (checkboxShowDate) {
+    checkboxShowDate.addEventListener('change', (e) => {
+      showDateStamp = e.target.checked;
+      if (stripDateEl) {
+        if (showDateStamp) {
+          stripDateEl.classList.remove('hidden');
+        } else {
+          stripDateEl.classList.add('hidden');
+        }
+      }
+      // Auto re-compile canvas if the photo strip is already complete
+      const numPhotos = LAYOUTS[currentLayoutKey].numPhotos;
+      if (photos.length === numPhotos) {
+        compilePhotoStrip();
+      }
+    });
+  }
 
   // Signature input event handler
   inputDedication.addEventListener('input', (e) => {
@@ -1128,4 +1607,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add listener to grant camera button
   btnGrantCamera.addEventListener('click', initCamera);
+
+  // Background info guide modal event handlers
+  const btnBgInfo = document.getElementById('btn-bg-info');
+  const bgInfoModalBackdrop = document.getElementById('bg-info-modal-backdrop');
+  const btnCloseBgInfo = document.getElementById('btn-close-bg-info');
+
+  if (btnBgInfo && bgInfoModalBackdrop && btnCloseBgInfo) {
+    btnBgInfo.addEventListener('click', () => {
+      bgInfoModalBackdrop.classList.remove('hidden');
+    });
+
+    btnCloseBgInfo.addEventListener('click', () => {
+      bgInfoModalBackdrop.classList.add('hidden');
+    });
+
+    bgInfoModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === bgInfoModalBackdrop) {
+        bgInfoModalBackdrop.classList.add('hidden');
+      }
+    });
+  }
 });
