@@ -1247,8 +1247,8 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.drawImage(footerLogoImg, logoX, logoY, logoW, logoH);
     }
 
-    // Save finalized URL to trigger downloading
-    compiledDataUrl = canvas.toDataURL('image/png');
+    // Save finalized URL to trigger downloading (use JPEG to reduce base64 size and prevent sessionStorage quota errors)
+    compiledDataUrl = canvas.toDataURL('image/jpeg', 0.9);
     btnDownload.disabled = false;
   }
 

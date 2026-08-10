@@ -129,10 +129,36 @@
 
         // Native download button inside preview page as extra helper
         btnDownload.addEventListener('click', () => {
-          const link = document.createElement('a');
-          link.download = `apeach_photobooth_${Date.now()}.png`;
-          link.href = dataUrl;
-          link.click();
+          try {
+            const parts = dataUrl.split(',');
+            const byteString = atob(parts[1]);
+            const mimeString = parts[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            const blobUrl = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            const extension = mimeString.includes('jpeg') ? 'jpg' : 'png';
+            link.download = `apeach_photobooth_${Date.now()}.${extension}`;
+            link.href = blobUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+          } catch (e) {
+            console.error('Download via Blob failed, falling back to data URL:', e);
+            const link = document.createElement('a');
+            link.download = `apeach_photobooth_${Date.now()}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
         });
       } else {
         // Redirect to main page if no image data found
