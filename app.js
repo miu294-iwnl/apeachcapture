@@ -1260,15 +1260,15 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       sessionStorage.setItem('compiledStrip', compiledDataUrl);
 
-      // Open absolute preview route to prevent path nesting issues on sub-paths
-      const newWindow = window.open('/preview/', '_blank');
+      // Open relative preview route to support GitHub Pages sub-directories
+      const newWindow = window.open('preview/', '_blank');
       if (!newWindow) {
         // Fallback for pop-up blockers
-        window.location.href = '/preview/';
+        window.location.href = 'preview/';
       }
     } catch (err) {
       console.warn("sessionStorage or window.open failed, redirecting:", err);
-      window.location.href = '/preview/';
+      window.location.href = 'preview/';
     }
   });
 
