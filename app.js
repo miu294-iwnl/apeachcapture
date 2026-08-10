@@ -499,8 +499,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize staging mode with an image (from webcam capture or upload)
   function initStagingPhoto(dataUrl, index) {
     const slot = frameSlots[index];
-    const slotW = slot.clientWidth || 192;
-    const slotH = slot.clientHeight || 144;
+    const slotRect = slot.getBoundingClientRect();
+    const slotW = slotRect.width || 192;
+    const slotH = slotRect.height || 144;
 
     const img = new Image();
     img.onload = () => {
@@ -1276,8 +1277,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function initBgStaging(dataUrl) {
     const img = new Image();
     img.onload = () => {
-      const stripW = photoStrip.clientWidth || 220;
-      const stripH = photoStrip.clientHeight || 682;
+      const stripRect = photoStrip.getBoundingClientRect();
+      const stripW = stripRect.width || 220;
+      const stripH = stripRect.height || 682;
       const rS = stripW / stripH;
       const rI = img.width / img.height;
 
@@ -1331,8 +1333,9 @@ document.addEventListener('DOMContentLoaded', () => {
       photoStrip.style.backgroundColor = '#ffffff'; // Set base color behind custom image to white #ffffff
       photoStrip.classList.add('custom-bg-active');
 
-      const stripW = photoStrip.clientWidth || 220;
-      const stripH = photoStrip.clientHeight || 682;
+      const stripRect = photoStrip.getBoundingClientRect();
+      const stripW = stripRect.width || 220;
+      const stripH = stripRect.height || 682;
 
       if (bgStaging.baseWidth > 0 && bgStaging.stripW > 0) {
         const ratioX = stripW / bgStaging.stripW;
