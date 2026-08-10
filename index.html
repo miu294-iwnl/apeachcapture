@@ -10,7 +10,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1.1.4">
+  
+  <!-- Tự động thêm timestamp để trình duyệt luôn tải CSS mới nhất (chống cache) -->
+  <script>
+    document.write('<link rel="stylesheet" href="style.css?v=' + new Date().getTime() + '">');
+  </script>
 </head>
 
 <body>
@@ -357,7 +361,10 @@
     </div>
   </div>
 
-  <script src="app.js?v=1.1.4"></script>
+  <!-- Tự động thêm timestamp để trình duyệt luôn tải JS mới nhất (chống cache) -->
+  <script>
+    document.write('<script src="app.js?v=' + new Date().getTime() + '"></' + 'script>');
+  </script>
 </body>
 
 </html>
